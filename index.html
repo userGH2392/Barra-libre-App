@@ -313,12 +313,14 @@ function rmForReps(rm1, reps) {
 function round5(v){ return Math.round(v/2.5)*2.5; }
 
 // ─── Onboarding ───────────────────────────────────────────────────────────────
+function ejId(ej){ return ej.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,''); }
+
 function renderRMFields() {
   document.getElementById('rm-fields').innerHTML = EJ_RM.map(ej => `
     <p style="font-size:14px;font-weight:600;margin-bottom:8px;margin-top:4px">${ej}</p>
     <div class="grid2">
-      <div><label>Peso (kg)</label><input type="number" id="rmp-${ej}" placeholder="100" inputmode="decimal"></div>
-      <div><label>Repeticiones</label><input type="number" id="rmr-${ej}" placeholder="5" inputmode="numeric"></div>
+      <div><label>Peso (kg)</label><input type="number" id="rmp-${ejId(ej)}" placeholder="100" inputmode="decimal"></div>
+      <div><label>Repeticiones</label><input type="number" id="rmr-${ejId(ej)}" placeholder="5" inputmode="numeric"></div>
     </div>
   `).join('');
 }
@@ -328,12 +330,13 @@ function calcularFase() {
   const peso   = parseFloat(document.getElementById('ob-peso').value);
   const altura = parseFloat(document.getElementById('ob-altura').value);
   const sexo   = document.getElementById('ob-sexo').value;
-  if(!nombre||!peso||!altura||!sexo){showToast('Completa todos los campos');return;}
+  if(!nombre||!peso||!altura||!sexo){showToast('Completa nombre, peso, altura y sexo');return;}
 
   const rms = {};
   for(const ej of EJ_RM){
-    const p = parseFloat(document.getElementById('rmp-'+ej).value)||0;
-    const r = parseInt(document.getElementById('rmr-'+ej).value)||1;
+    const p = parseFloat(document.getElementById('rmp-'+ejId(ej)).value)||0;
+    const r = parseInt(document.getElementById('rmr-'+ejId(ej)).value)||1;
+    if(!p){ showToast('Introduce el peso de: ' + ej); return; }
     rms[ej] = Math.round(calc1RM(p,r)*10)/10;
   }
 

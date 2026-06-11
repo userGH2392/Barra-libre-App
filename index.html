@@ -208,8 +208,33 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
     <div class="card">
       <div class="step-label">Marcas actuales</div>
-      <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5">Introduce el peso y las repeticiones con las que trabajas. Calcularemos tu 1RM automáticamente.<br>Si conoces tu 1RM directamente, pon 1 rep.</p>
-      <div id="rm-fields"></div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5">Introduce el peso y las repeticiones con las que trabajas. Calcularemos tu 1RM automáticamente. Si conoces tu 1RM directamente, pon 1 en repeticiones.</p>
+
+      <p style="font-size:14px;font-weight:600;margin-bottom:8px;margin-top:4px">Sentadilla</p>
+      <div class="grid2">
+        <div><label>Peso (kg)</label><input type="number" id="rmp-Sentadilla" placeholder="100" inputmode="decimal"></div>
+        <div><label>Repeticiones</label><input type="number" id="rmr-Sentadilla" placeholder="5" inputmode="numeric"></div>
+      </div>
+
+      <p style="font-size:14px;font-weight:600;margin-bottom:8px;margin-top:4px">Press banca</p>
+      <div class="grid2">
+        <div><label>Peso (kg)</label><input type="number" id="rmp-Press_banca" placeholder="80" inputmode="decimal"></div>
+        <div><label>Repeticiones</label><input type="number" id="rmr-Press_banca" placeholder="5" inputmode="numeric"></div>
+      </div>
+
+      <p style="font-size:14px;font-weight:600;margin-bottom:8px;margin-top:4px">Peso muerto</p>
+      <div class="grid2">
+        <div><label>Peso (kg)</label><input type="number" id="rmp-Peso_muerto" placeholder="120" inputmode="decimal"></div>
+        <div><label>Repeticiones</label><input type="number" id="rmr-Peso_muerto" placeholder="5" inputmode="numeric"></div>
+      </div>
+
+      <p style="font-size:14px;font-weight:600;margin-bottom:8px;margin-top:4px">Press militar</p>
+      <div class="grid2">
+        <div><label>Peso (kg)</label><input type="number" id="rmp-Press_militar" placeholder="60" inputmode="decimal"></div>
+        <div><label>Repeticiones</label><input type="number" id="rmr-Press_militar" placeholder="5" inputmode="numeric"></div>
+      </div>
+
+      <div id="rm-fields" style="display:none"></div>
     </div>
 
     <button class="btn" onclick="calcularFase()">Calcular mi fase →</button>
@@ -332,10 +357,19 @@ function calcularFase() {
   const sexo   = document.getElementById('ob-sexo').value;
   if(!nombre||!peso||!altura||!sexo){showToast('Completa nombre, peso, altura y sexo');return;}
 
+  const RM_IDS = {
+    'Sentadilla':   'Sentadilla',
+    'Press banca':  'Press_banca',
+    'Peso muerto':  'Peso_muerto',
+    'Press militar':'Press_militar'
+  };
   const rms = {};
   for(const ej of EJ_RM){
-    const p = parseFloat(document.getElementById('rmp-'+ejId(ej)).value)||0;
-    const r = parseInt(document.getElementById('rmr-'+ejId(ej)).value)||1;
+    const fieldId = RM_IDS[ej];
+    const pEl = document.getElementById('rmp-'+fieldId);
+    const rEl = document.getElementById('rmr-'+fieldId);
+    const p = pEl ? parseFloat(pEl.value)||0 : 0;
+    const r = rEl ? parseInt(rEl.value)||1 : 1;
     if(!p){ showToast('Introduce el peso de: ' + ej); return; }
     rms[ej] = Math.round(calc1RM(p,r)*10)/10;
   }

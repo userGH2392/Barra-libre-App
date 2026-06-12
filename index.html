@@ -707,13 +707,574 @@ function htmlDescanso(pos) {
     '<button class="btn-outline" onclick="completarDesde('+(pos||0)+')">Marcar día como completado</button>';
 }
 
+// ── WOD Library ──────────────────────────────────────────────────────────────
+// 32 WODs rotatorios (4 por cada semana típica del ciclo).
+// Diseñados para ser metabólicos y complementar las sesiones de fuerza de la semana,
+// sin cargar los mismos patrones de movimiento dominantes del programa principal.
+// Modalidades: KB, barra (pesos ligeros/medios), gimnásticos, cardio.
+var WODS = [
+  // ── Bloque 1: Fuerza baja — énfasis pull y core ──────────────────────────
+  {
+    nombre: "AMRAP 18",
+    tipo: "AMRAP",
+    nota: "Énfasis en pulling y core. Evita la sentadilla y el press pesado que ya hiciste esta semana.",
+    rx: [
+      "5 Dominadas",
+      "10 Kettlebell swing (32 kg)",
+      "15 Sit-ups con barra (20 kg)",
+      "200 m carrera"
+    ],
+    scaled: [
+      "5 Ring rows / Dominadas asistidas",
+      "10 Kettlebell swing (16 kg)",
+      "15 Sit-ups normales",
+      "200 m carrera o 250 m remo"
+    ]
+  },
+  {
+    nombre: "3 RFT",
+    tipo: "For Time",
+    nota: "Cardio + empuje horizontal ligero. Sin carga axial para respetar la espalda.",
+    rx: [
+      "400 m carrera",
+      "15 Push-ups con palmada",
+      "12 Toes to bar",
+      "9 Burpees"
+    ],
+    scaled: [
+      "400 m caminata rápida o 500 m remo",
+      "15 Push-ups normales",
+      "12 Knee raises",
+      "9 Burpees step-over"
+    ]
+  },
+  {
+    nombre: "EMOM 20 (4 estaciones x 5 rondas)",
+    tipo: "EMOM",
+    nota: "Trabajo aeróbico de baja intensidad acumulada. Ideal para días de volumen.",
+    rx: [
+      "Min 1: 12 KB snatches alternos (24 kg)",
+      "Min 2: 10 Muscle-ups en anillas / Chest-to-bar",
+      "Min 3: 15 Box jumps (60 cm)",
+      "Min 4: 12 GHD sit-ups"
+    ],
+    scaled: [
+      "Min 1: 12 KB snatches alternos (16 kg)",
+      "Min 2: 10 Pull-ups / Ring rows",
+      "Min 3: 15 Box jumps (50 cm) o step-ups",
+      "Min 4: 12 Sit-ups con los pies sujetos"
+    ]
+  },
+  {
+    nombre: "Chipper metabólico",
+    tipo: "For Time",
+    nota: "Una sola pasada. Carga ligera, volumen alto. Sin sentadilla ni peso muerto.",
+    rx: [
+      "50 Double-unders",
+      "30 KB swings (32 kg)",
+      "25 Pull-ups",
+      "20 Dips en paralelas",
+      "15 Toes to bar",
+      "10 Handstand push-ups",
+      "50 Double-unders"
+    ],
+    scaled: [
+      "100 Single-unders",
+      "30 KB swings (20 kg)",
+      "25 Ring rows",
+      "20 Fondos en banco",
+      "15 Knee raises",
+      "10 Pike push-ups",
+      "100 Single-unders"
+    ]
+  },
+  // ── Bloque 2: Semana Texas Vol — pierna descargada ────────────────────────
+  {
+    nombre: "AMRAP 15 — Upper & Core",
+    tipo: "AMRAP",
+    nota: "Sin carga en piernas. La sentadilla ya fue tu protagonista hoy.",
+    rx: [
+      "8 Chest-to-bar pull-ups",
+      "10 Ring dips",
+      "12 KB press alternos (24 kg)",
+      "16 Hollow rocks"
+    ],
+    scaled: [
+      "8 Pull-ups o jumping pull-ups",
+      "10 Fondos en paralelas / banco",
+      "12 KB press alternos (16 kg)",
+      "16 Hollow holds 5 seg"
+    ]
+  },
+  {
+    nombre: "Tabata doble (16 min)",
+    tipo: "Tabata",
+    nota: "20s trabajo / 10s descanso x 8 rondas cada ejercicio. Cardio puro.",
+    rx: [
+      "Ejercicio A — Burpees",
+      "Ejercicio B — KB swings (24 kg)"
+    ],
+    scaled: [
+      "Ejercicio A — Burpees step-over",
+      "Ejercicio B — KB swings (16 kg)"
+    ]
+  },
+  {
+    nombre: "5 RFT — Gimnásticos y KB",
+    tipo: "For Time",
+    nota: "Movimientos de cadena posterior ligera y pull. Complementa el press de hoy.",
+    rx: [
+      "7 Muscle-ups",
+      "14 KB swings americanos (32 kg)",
+      "21 Double-unders"
+    ],
+    scaled: [
+      "7 Pull-ups + 7 Dips (separados)",
+      "14 KB swings (20 kg)",
+      "42 Single-unders"
+    ]
+  },
+  {
+    nombre: "EMOM 16 — Potencia y cardio",
+    tipo: "EMOM",
+    nota: "Alternancia entre potencia y capacidad aeróbica. Sin carga axial.",
+    rx: [
+      "Impares: 6 Power cleans con barra (60 kg)",
+      "Pares: 15 Cals en remo o assault bike"
+    ],
+    scaled: [
+      "Impares: 6 Power cleans (40 kg)",
+      "Pares: 12 Cals remo o 200 m carrera"
+    ]
+  },
+  // ── Bloque 3: Semana Texas Rec — recuperación activa ──────────────────────
+  {
+    nombre: "AMRAP 20 — Aeróbico suave",
+    tipo: "AMRAP",
+    nota: "Semana de recuperación: ritmo cómodo, nunca al límite. Muévete, no sufras.",
+    rx: [
+      "500 m remo (ritmo suave)",
+      "10 Turkish get-ups alternos (20 kg)",
+      "15 GHD sit-ups"
+    ],
+    scaled: [
+      "400 m carrera suave",
+      "10 Turkish get-ups (12 kg)",
+      "15 Sit-ups normales"
+    ]
+  },
+  {
+    nombre: "3 RFT — Flujo gimnástico",
+    tipo: "For Time",
+    nota: "Técnica y control. Sin carga pesada, buena jornada para trabajar skills.",
+    rx: [
+      "10 Handstand push-ups",
+      "15 Pull-ups",
+      "20 Box jumps (60 cm)",
+      "25 Double-unders"
+    ],
+    scaled: [
+      "10 Pike push-ups",
+      "15 Ring rows",
+      "20 Box jumps (50 cm) o step-ups",
+      "50 Single-unders"
+    ]
+  },
+  {
+    nombre: "EMOM 18 — KB y core",
+    tipo: "EMOM",
+    nota: "Trabajo unilateral y estabilizador. Rellena los huecos del programa.",
+    rx: [
+      "Min 1: 10 KB snatch alternos (24 kg)",
+      "Min 2: 10 Toes to bar",
+      "Min 3: 12 Goblet squats (32 kg)"
+    ],
+    scaled: [
+      "Min 1: 10 KB snatch alternos (16 kg)",
+      "Min 2: 10 Knee raises",
+      "Min 3: 12 Goblet squats (20 kg)"
+    ]
+  },
+  {
+    nombre: "Escalera de 10 a 1",
+    tipo: "For Time",
+    nota: "Volumen decreciente. Primer set duro, terminas fresco. Sin carga axial pesada.",
+    rx: [
+      "10-9-8-7-6-5-4-3-2-1 de:",
+      "Dips en anillas",
+      "Burpees",
+      "+ 10 Cals remo entre cada ronda"
+    ],
+    scaled: [
+      "10-9-8-7-6-5-4-3-2-1 de:",
+      "Fondos en banco",
+      "Burpees step-over",
+      "+ 8 Cals remo entre cada ronda"
+    ]
+  },
+  // ── Bloque 4: Semana Texas Int — descarga previa al test ──────────────────
+  {
+    nombre: "20 min AMRAP — Bajo impacto",
+    tipo: "AMRAP",
+    nota: "Mañana toca intensidad. Hoy activa sin fatigar el SNC. Ritmo conversacional.",
+    rx: [
+      "250 m remo",
+      "10 KB swings (24 kg)",
+      "10 Push-ups con palmada",
+      "10 Hollow rocks"
+    ],
+    scaled: [
+      "200 m carrera suave",
+      "10 KB swings (16 kg)",
+      "10 Push-ups normales",
+      "10 Hollow hold 5 seg"
+    ]
+  },
+  {
+    nombre: "EMOM 12 — Activación ligera",
+    tipo: "EMOM",
+    nota: "Mantenimiento metabólico. No al fallo en ningún set.",
+    rx: [
+      "Min 1: 8 Pull-ups",
+      "Min 2: 12 Box jumps (60 cm)",
+      "Min 3: 10 KB press alternos (20 kg)"
+    ],
+    scaled: [
+      "Min 1: 8 Ring rows",
+      "Min 2: 12 Step-ups (50 cm)",
+      "Min 3: 10 KB press alternos (12 kg)"
+    ]
+  },
+  {
+    nombre: "3 RFT — Cardiovascular puro",
+    tipo: "For Time",
+    nota: "Sin barra, sin carga axial. Cardio y peso corporal únicamente.",
+    rx: [
+      "400 m carrera",
+      "20 Burpees",
+      "15 Pull-ups",
+      "10 Handstand push-ups"
+    ],
+    scaled: [
+      "400 m carrera",
+      "20 Burpees step-over",
+      "15 Ring rows",
+      "10 Pike push-ups"
+    ]
+  },
+  {
+    nombre: "Chipper de KB",
+    tipo: "For Time",
+    nota: "Sólo kettlebell. Movimiento continuo y acondicionamiento sin carga en barra.",
+    rx: [
+      "40 KB swings americanos (32 kg)",
+      "30 KB goblet squats (32 kg)",
+      "20 KB push press alternos (24 kg)",
+      "10 Turkish get-ups alternos (24 kg)",
+      "20 KB push press alternos",
+      "30 KB goblet squats",
+      "40 KB swings americanos"
+    ],
+    scaled: [
+      "40 KB swings (20 kg)",
+      "30 KB goblet squats (20 kg)",
+      "20 KB push press alternos (16 kg)",
+      "10 Turkish get-ups (12 kg)",
+      "20 KB push press alternos",
+      "30 KB goblet squats",
+      "40 KB swings"
+    ]
+  },
+  // ── Bloque 5: Fase 2 Hipertrofia — complementar sin solapar ──────────────
+  {
+    nombre: "AMRAP 16 — Cardio y core",
+    tipo: "AMRAP",
+    nota: "Esta semana hiciste mucho press y remo. Hoy: piernas ligeras y cardio.",
+    rx: [
+      "12 Box jumps (60 cm)",
+      "10 Toes to bar",
+      "8 Burpees con salto",
+      "200 m carrera"
+    ],
+    scaled: [
+      "12 Step-ups (50 cm)",
+      "10 Knee raises",
+      "8 Burpees normales",
+      "200 m caminata rápida"
+    ]
+  },
+  {
+    nombre: "5 RFT — KB y gimnásticos",
+    tipo: "For Time",
+    nota: "Potencia y resistencia. Sin carga horizontal que compita con el press del jueves.",
+    rx: [
+      "10 KB swings americanos (32 kg)",
+      "8 Muscle-ups en barra",
+      "6 Power cleans (70 kg)",
+      "200 m carrera"
+    ],
+    scaled: [
+      "10 KB swings (20 kg)",
+      "8 Pull-ups + 8 Dips",
+      "6 Power cleans (45 kg)",
+      "200 m carrera"
+    ]
+  },
+  {
+    nombre: "EMOM 20 — Aeróbico variado",
+    tipo: "EMOM",
+    nota: "5 estaciones x 4 rondas. Baja intensidad sostenida.",
+    rx: [
+      "Min 1: 15 Cals remo",
+      "Min 2: 10 Dips en anillas",
+      "Min 3: 12 KB snatch alternos (24 kg)",
+      "Min 4: 10 GHD sit-ups",
+      "Min 5: 15 Double-unders x 3"
+    ],
+    scaled: [
+      "Min 1: 12 Cals remo",
+      "Min 2: 10 Fondos en banco",
+      "Min 3: 12 KB snatch (16 kg)",
+      "Min 4: 10 Sit-ups",
+      "Min 5: 45 Single-unders"
+    ]
+  },
+  {
+    nombre: "Partición libre — 30 min",
+    tipo: "For Time",
+    nota: "Divídelo como quieras. Fuerza en los ejercicios gimnásticos, cardio entre medias.",
+    rx: [
+      "100 Pull-ups",
+      "100 Push-ups",
+      "100 Sit-ups",
+      "100 Air squats",
+      "(al estilo Angie — ó en particiones libres)"
+    ],
+    scaled: [
+      "75 Ring rows",
+      "75 Push-ups con rodillas",
+      "75 Sit-ups",
+      "75 Air squats"
+    ]
+  },
+  // ── Bloque 6: Variedad metabólica ─────────────────────────────────────────
+  {
+    nombre: "Death by Burpees + KB",
+    tipo: "EMOM creciente",
+    nota: "Minuto 1: 1 burpee + 1 KB swing. Minuto 2: 2+2... hasta que no llegues.",
+    rx: [
+      "X Burpees con salto",
+      "X KB swings americanos (32 kg)"
+    ],
+    scaled: [
+      "X Burpees step-over",
+      "X KB swings (20 kg)"
+    ]
+  },
+  {
+    nombre: "4 RFT — Potencia + resistencia",
+    tipo: "For Time",
+    nota: "Explosividad y capacidad aeróbica. El clean limpio, no para el ego.",
+    rx: [
+      "5 Power cleans (80 kg)",
+      "10 Box jumps (60 cm)",
+      "15 Pull-ups",
+      "400 m carrera"
+    ],
+    scaled: [
+      "5 Power cleans (50 kg)",
+      "10 Step-ups (50 cm)",
+      "15 Ring rows",
+      "400 m carrera"
+    ]
+  },
+  {
+    nombre: "Cindy (AMRAP 20)",
+    tipo: "AMRAP",
+    nota: "Clásico de CrossFit. Deceptivamente exigente. Ritmo sostenido desde el minuto 1.",
+    rx: [
+      "5 Pull-ups",
+      "10 Push-ups",
+      "15 Air squats"
+    ],
+    scaled: [
+      "5 Ring rows",
+      "10 Push-ups con rodillas",
+      "15 Air squats"
+    ]
+  },
+  {
+    nombre: "EMOM 15 — Potencia",
+    tipo: "EMOM",
+    nota: "Calidad sobre cantidad. Cada rep debe ser explosiva.",
+    rx: [
+      "Min 1: 3 Snatch con barra (60% 1RM)",
+      "Min 2: 5 Box jumps máxima altura",
+      "Min 3: 8 KB swings americanos (32 kg)"
+    ],
+    scaled: [
+      "Min 1: 3 Power snatch (40% 1RM o PVC)",
+      "Min 2: 5 Box jumps (50 cm) o saltos al cajón",
+      "Min 3: 8 KB swings (20 kg)"
+    ]
+  },
+  {
+    nombre: "El Clásico 21-15-9",
+    tipo: "For Time",
+    nota: "Basado en Fran. Rápido y al límite. El objetivo es no parar.",
+    rx: [
+      "21-15-9 de:",
+      "Thrusters (43 kg hombre)",
+      "Pull-ups"
+    ],
+    scaled: [
+      "21-15-9 de:",
+      "Thrusters (30 kg)",
+      "Ring rows o jumping pull-ups"
+    ]
+  },
+  {
+    nombre: "Intervalos de remo",
+    tipo: "Intervalos",
+    nota: "10 x 250 m al sprint. 90 seg descanso entre series. Registro tu tiempo en cada uno.",
+    rx: [
+      "10 × 250 m remo",
+      "Descanso: 90 seg",
+      "Objetivo: todos los splits iguales"
+    ],
+    scaled: [
+      "8 × 200 m remo",
+      "Descanso: 2 min",
+      "O sustituir por 200 m carrera por intervalo"
+    ]
+  },
+  {
+    nombre: "3 RFT — Unilateral y cardio",
+    tipo: "For Time",
+    nota: "Trabajo unilateral para equilibrar asimetrías. Pace constante.",
+    rx: [
+      "10 KB pistol squats con apoyo (5 por pierna)",
+      "12 KB push press unilateral (24 kg, 6 por lado)",
+      "15 Toes to bar",
+      "250 m remo"
+    ],
+    scaled: [
+      "10 Zancadas con KB (16 kg, 5 por pierna)",
+      "12 KB push press unilateral (12 kg)",
+      "15 Knee raises",
+      "200 m carrera"
+    ]
+  },
+  {
+    nombre: "Chipper pesado",
+    tipo: "For Time",
+    nota: "Una sola pasada. Cargas moderadas-altas. Administra el esfuerzo.",
+    rx: [
+      "30 Wall balls (9 kg a 3 m)",
+      "25 Pull-ups",
+      "20 KB swings americanos (32 kg)",
+      "15 Handstand push-ups",
+      "10 Muscle-ups",
+      "800 m carrera final"
+    ],
+    scaled: [
+      "30 Wall balls (6 kg)",
+      "25 Ring rows",
+      "20 KB swings (20 kg)",
+      "15 Pike push-ups",
+      "10 Pull-ups + 10 Dips",
+      "800 m carrera o caminata rápida"
+    ]
+  },
+  {
+    nombre: "AMRAP 12 — Sprint metabólico",
+    tipo: "AMRAP",
+    nota: "Breve e intenso. Ideal cuando el tiempo es limitado.",
+    rx: [
+      "6 Burpees al cajón (60 cm)",
+      "9 KB swings americanos (32 kg)",
+      "12 Pull-ups"
+    ],
+    scaled: [
+      "6 Burpees normales",
+      "9 KB swings (20 kg)",
+      "12 Ring rows"
+    ]
+  },
+  {
+    nombre: "Filthy Fifty (versión reducida)",
+    tipo: "For Time",
+    nota: "25 de cada movimiento. Máximo trabajo en el tiempo más corto posible.",
+    rx: [
+      "25 Box jumps (60 cm)",
+      "25 Pull-ups",
+      "25 KB swings (32 kg)",
+      "25 Lunges con barra (40 kg)",
+      "25 Toes to bar",
+      "25 Push press (40 kg)",
+      "25 Burpees"
+    ],
+    scaled: [
+      "25 Step-ups (50 cm)",
+      "25 Ring rows",
+      "25 KB swings (20 kg)",
+      "25 Lunges sin peso",
+      "25 Knee raises",
+      "25 Push press (25 kg)",
+      "25 Burpees step-over"
+    ]
+  },
+  {
+    nombre: "EMOM 24 — Resistencia aeróbica",
+    tipo: "EMOM",
+    nota: "6 estaciones x 4 rondas. Ritmo 70-75% FC máx. Recuperación activa.",
+    rx: [
+      "Min 1: 12 Cals assault bike",
+      "Min 2: 8 Chest-to-bar",
+      "Min 3: 10 KB snatch alternos (24 kg)",
+      "Min 4: 12 Box jumps (60 cm)",
+      "Min 5: 10 GHD sit-ups",
+      "Min 6: 200 m carrera"
+    ],
+    scaled: [
+      "Min 1: 10 Cals remo",
+      "Min 2: 8 Pull-ups",
+      "Min 3: 10 KB snatch (16 kg)",
+      "Min 4: 12 Step-ups (50 cm)",
+      "Min 5: 10 Sit-ups",
+      "Min 6: 200 m caminata rápida"
+    ]
+  },
+];
+
+function getWodDelDia(pos) {
+  return WODS[(pos || 0) % WODS.length];
+}
+
 function htmlCrossfit(pos) {
-  return '<div class="card"><p style="font-size:15px;font-weight:500;margin-bottom:12px">🔥 Crossfit</p>' +
-    '<div class="card-sm"><p style="font-size:14px;font-weight:500;margin-bottom:4px">Opción 1</p><p style="font-size:13px;color:var(--text2)">Acude a una clase crossfit en tu gimnasio.</p></div>' +
-    '<div class="card-sm"><p style="font-size:14px;font-weight:500;margin-bottom:6px">Opción 2 — WOD oficial</p>' +
-    '<a href="https://www.crossfit.com" style="display:inline-block;background:var(--blue-bg);color:var(--blue);padding:8px 14px;border-radius:8px;font-size:13px;font-weight:500;text-decoration:none">crossfit.com →</a>' +
-    '</div></div>' +
-    '<button class="btn-outline" onclick="completarDesde('+(pos||0)+')">Marcar día como completado</button>';
+  var wod = getWodDelDia(pos || 0);
+  var rxRows = wod.rx.map(function(l) {
+    return '<div style="padding:5px 0;border-bottom:0.5px solid var(--border);font-size:14px">'+l+'</div>';
+  }).join('');
+  var scRows = wod.scaled.map(function(l) {
+    return '<div style="padding:5px 0;border-bottom:0.5px solid var(--border);font-size:14px;color:var(--text2)">'+l+'</div>';
+  }).join('');
+
+  return '<div class="card">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
+      '<div class="card-title" style="margin:0">🔥 WOD del día</div>' +
+      '<span class="badge b-amber">'+wod.tipo+'</span>' +
+    '</div>' +
+    '<p style="font-size:14px;font-weight:600;margin-bottom:6px">'+wod.nombre+'</p>' +
+    '<div class="alert a-blue" style="margin-bottom:12px;font-size:13px">'+wod.nota+'</div>' +
+
+    '<p style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">RX</p>' +
+    '<div style="margin-bottom:14px">'+rxRows+'</div>' +
+
+    '<p style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">Scaled</p>' +
+    '<div style="margin-bottom:14px">'+scRows+'</div>' +
+  '</div>' +
+  '<button class="btn-outline" onclick="completarDesde('+(pos||0)+')">Marcar WOD como completado</button>';
 }
 
 function exHtml(exs, key) {

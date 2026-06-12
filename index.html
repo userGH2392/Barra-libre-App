@@ -17,8 +17,8 @@
   --amber:#ffd60a; --amber-bg:rgba(255,214,10,0.15);
   --red:#ff453a;
   --r:12px; --rsm:8px;
-  --sb: env(safe-area-inset-bottom,0px);
-  --st: env(safe-area-inset-top,0px);
+  --sb:env(safe-area-inset-bottom,0px);
+  --st:env(safe-area-inset-top,0px);
 }
 @media(prefers-color-scheme:light){
   :root{
@@ -34,13 +34,11 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text)}
 body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:16px;overscroll-behavior:none}
-
-/* layout */
 #app{display:flex;flex-direction:column;height:100%;padding-top:var(--st)}
 .page{display:none;flex-direction:column;flex:1;overflow:hidden}
 .page.on{display:flex}
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px calc(20px + var(--sb))}
-.scroll.pad-nav{padding-bottom:calc(70px + var(--sb))}
+.scroll.pad-nav{padding-bottom:calc(74px + var(--sb))}
 
 /* tab bar */
 #tabbar{display:flex;background:var(--bg2);border-top:0.5px solid var(--border);padding-bottom:var(--sb);flex-shrink:0}
@@ -58,8 +56,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:16px;over
 input[type=number],input[type=text],select{
   width:100%;background:var(--bg3);border:0.5px solid var(--border);border-radius:var(--rsm);
   color:var(--text);font-size:16px;padding:12px 13px;margin-bottom:14px;
-  -webkit-appearance:none;appearance:none;outline:none
-}
+  -webkit-appearance:none;appearance:none;outline:none}
 input:focus,select:focus{border-color:var(--border2)}
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238e8e93' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:36px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -68,14 +65,16 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 /* buttons */
 .btn{width:100%;padding:15px;background:var(--text);color:var(--bg);border:none;border-radius:var(--rsm);font-size:16px;font-weight:600;cursor:pointer;display:block;text-align:center}
 .btn:active{opacity:.75}
-.btn-line{background:transparent;color:var(--text);border:0.5px solid var(--border2)}
-.btn-red{background:transparent;color:var(--red);border:0.5px solid rgba(255,69,58,.3)}
+.btn-outline{background:transparent;color:var(--text);border:0.5px solid var(--border2);width:100%;padding:13px;border-radius:var(--rsm);font-size:15px;font-weight:500;cursor:pointer;display:block;text-align:center;margin-top:8px}
+.btn-outline:active{opacity:.7}
+.btn-red{background:transparent;color:var(--red);border:0.5px solid rgba(255,69,58,.3);width:100%;padding:13px;border-radius:var(--rsm);font-size:15px;cursor:pointer;display:block;text-align:center}
 
 /* badge */
 .badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px}
 .b-blue{background:var(--blue-bg);color:var(--blue)}
 .b-green{background:var(--green-bg);color:var(--green)}
 .b-amber{background:var(--amber-bg);color:var(--amber)}
+.b-gray{background:var(--bg3);color:var(--text2)}
 
 /* progress */
 .pbar{width:100%;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden}
@@ -100,11 +99,16 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .chk-box{width:26px;height:26px;border:1.5px solid var(--border2);border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
 .chk-box.on{background:var(--green-bg);border-color:var(--green)}
 
-/* week */
-.wday{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--rsm);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.wday.hoy{border-color:var(--blue)}
-.wday-n{font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.3px;margin-bottom:2px}
-.wday-t{font-size:15px;font-weight:500}
+/* semana cards */
+.scard{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .15s}
+.scard.siguiente{border-color:var(--blue);border-width:1.5px}
+.scard.completada{opacity:.55}
+.scard-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.scard-num{font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.3px}
+.scard-tipo{font-size:16px;font-weight:600;margin-bottom:2px}
+.scard-desc{font-size:13px;color:var(--text2)}
+.scard-expand{display:none;margin-top:12px;border-top:0.5px solid var(--border);padding-top:12px}
+.scard-expand.on{display:block}
 
 /* quote */
 .quote{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r);padding:24px 20px;text-align:center;margin-bottom:12px}
@@ -151,7 +155,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 <div id="app">
 <div id="toast"></div>
 
-<!-- ═══ ONBOARDING ═══ -->
+<!-- ONBOARDING -->
 <div id="p-ob" class="page on">
   <div class="scroll">
     <div class="ob-hero">
@@ -159,7 +163,6 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <div class="ob-h1">Diario de entrenamiento</div>
       <p class="ob-sub">Completa tu perfil para asignarte la fase inicial.</p>
     </div>
-
     <div class="card">
       <div class="step-lbl">Datos personales</div>
       <span class="lbl">Nombre</span>
@@ -175,44 +178,35 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <option value="M">Mujer</option>
       </select>
     </div>
-
     <div class="card">
       <div class="step-lbl">Marcas actuales</div>
-      <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.5">
-        Introduce el peso y repeticiones con los que trabajas. Calcularemos tu 1RM.<br>
-        Si conoces tu 1RM directamente, pon 1 en repeticiones.
-      </p>
-
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.5">Introduce el peso y repeticiones con los que trabajas. Calcularemos tu 1RM.<br>Si conoces tu 1RM directamente, pon 1 en repeticiones.</p>
       <p class="ej-lbl">Sentadilla</p>
       <div class="g2">
         <div><span class="lbl">Peso (kg)</span><input type="number" id="p-sq" placeholder="100" inputmode="decimal"></div>
         <div><span class="lbl">Repeticiones</span><input type="number" id="r-sq" placeholder="5" inputmode="numeric"></div>
       </div>
-
       <p class="ej-lbl">Press banca</p>
       <div class="g2">
         <div><span class="lbl">Peso (kg)</span><input type="number" id="p-bp" placeholder="80" inputmode="decimal"></div>
         <div><span class="lbl">Repeticiones</span><input type="number" id="r-bp" placeholder="5" inputmode="numeric"></div>
       </div>
-
       <p class="ej-lbl">Peso muerto</p>
       <div class="g2">
         <div><span class="lbl">Peso (kg)</span><input type="number" id="p-dl" placeholder="120" inputmode="decimal"></div>
         <div><span class="lbl">Repeticiones</span><input type="number" id="r-dl" placeholder="5" inputmode="numeric"></div>
       </div>
-
       <p class="ej-lbl">Press militar</p>
       <div class="g2">
         <div><span class="lbl">Peso (kg)</span><input type="number" id="p-ohp" placeholder="60" inputmode="decimal"></div>
         <div><span class="lbl">Repeticiones</span><input type="number" id="r-ohp" placeholder="5" inputmode="numeric"></div>
       </div>
     </div>
-
     <button class="btn" id="btn-calcular" onclick="calcularFase()">Calcular mi fase →</button>
   </div>
 </div>
 
-<!-- ═══ RESULTADO ═══ -->
+<!-- RESULTADO -->
 <div id="p-res" class="page">
   <div class="scroll">
     <div id="res-content"></div>
@@ -220,13 +214,12 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   </div>
 </div>
 
-<!-- ═══ MAIN ═══ -->
+<!-- MAIN -->
 <div id="p-main" class="page">
   <div id="t-hoy"    class="scroll pad-nav" style="display:none"></div>
   <div id="t-semana" class="scroll pad-nav" style="display:none"></div>
   <div id="t-fuerza" class="scroll pad-nav" style="display:none"></div>
   <div id="t-perfil" class="scroll pad-nav" style="display:none"></div>
-
   <div id="tabbar">
     <button class="tb on" id="nav-hoy" onclick="tab('hoy')">
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -246,30 +239,50 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     </button>
   </div>
 </div>
-
-</div><!-- #app -->
+</div>
 
 <script>
 'use strict';
-
-// ── Constantes ────────────────────────────────────────────────────────────────
 var KEY = 'entreno_v4';
-var QUOTES = [
-  {t:"El obstáculo es el camino.", a:"Marco Aurelio"},
-  {t:"No busques que todo suceda como quieres; desea que todo suceda como es.", a:"Epicteto"},
-  {t:"Soportar es la virtud más grande. Los que no pueden soportar no pueden crecer.", a:"Epicteto"},
-  {t:"Primero domina la mente; después domina el cuerpo.", a:"Musashi"},
-  {t:"El sufrimiento es inevitable. El desmoronamiento es opcional.", a:"Marco Aurelio"},
-  {t:"Cada mañana nos reencarnamos. Lo que hagamos hoy es lo más importante.", a:"Miyamoto Musashi"},
-  {t:"El hombre que se mueve una montaña empieza llevando pequeñas piedras.", a:"Confucio"},
-  {t:"Ocúpate de tus cosas, no de lo que otros hacen o dejan de hacer.", a:"Epicteto"},
-];
-var TIPOS = {
-  '1':   ['Descanso','Sesion','Descanso','Sesion','Descanso','Sesion','Crossfit'],
-  '1.2': ['Descanso','Volumen','Descanso','Recuperacion','Descanso','Intensidad','Crossfit'],
-  '2':   ['Descanso','TorsoF','PiernaF','Descanso','TorsoH','PiernaH','Crossfit'],
-  '3':   ['Descanso','Sesion','Descanso','Sesion','Descanso','Sesion','Crossfit'],
-};
+
+// ── Secuencia de sesiones por fase ────────────────────────────────────────────
+// Cada elemento: { tipo, label, desc }
+function getSecuencia(fase) {
+  var s = [];
+  if (fase === '1') {
+    // Semana: L-Des-X-Des-V-Cf-D, sesiones A/B alternadas
+    var patron = ['Sesion','Descanso','Sesion','Descanso','Sesion','Crossfit','Descanso'];
+    for (var w = 0; w < 8; w++) {
+      for (var d = 0; d < 7; d++) {
+        var t = patron[d];
+        s.push({ tipo: t, semana: w+1, dia: d });
+      }
+    }
+  } else if (fase === '1.2') {
+    var patron12 = ['Volumen','Descanso','Recuperacion','Descanso','Intensidad','Crossfit','Descanso'];
+    for (var w = 0; w < 8; w++) {
+      for (var d = 0; d < 7; d++) {
+        s.push({ tipo: patron12[d], semana: w+1, dia: d });
+      }
+    }
+  } else if (fase === '2') {
+    var patron2 = ['TorsoF','PiernaF','Descanso','TorsoH','PiernaH','Crossfit','Descanso'];
+    for (var w = 0; w < 16; w++) {
+      for (var d = 0; d < 7; d++) {
+        s.push({ tipo: patron2[d], semana: w+1, dia: d });
+      }
+    }
+  } else {
+    var patron3 = ['Sesion','Descanso','Sesion','Descanso','Sesion','Crossfit','Descanso'];
+    for (var w = 0; w < 6; w++) {
+      for (var d = 0; d < 7; d++) {
+        s.push({ tipo: patron3[d], semana: w+1, dia: d });
+      }
+    }
+  }
+  return s;
+}
+
 var TIPO_LABEL = {
   Descanso:'Descanso', Sesion:'Sesión', Crossfit:'Crossfit',
   Volumen:'Volumen', Recuperacion:'Recuperación', Intensidad:'Intensidad',
@@ -280,34 +293,36 @@ var TIPO_COLOR = {
   Volumen:'var(--text)', Recuperacion:'var(--blue)', Intensidad:'var(--green)',
   TorsoF:'var(--text)', PiernaF:'var(--text)', TorsoH:'var(--amber)', PiernaH:'var(--amber)',
 };
+var QUOTES = [
+  {t:"El obstáculo es el camino.", a:"Marco Aurelio"},
+  {t:"No busques que todo suceda como quieres; desea que todo suceda como es.", a:"Epicteto"},
+  {t:"Soportar es la virtud más grande.", a:"Epicteto"},
+  {t:"Primero domina la mente; después domina el cuerpo.", a:"Musashi"},
+  {t:"El sufrimiento es inevitable. El desmoronamiento es opcional.", a:"Marco Aurelio"},
+  {t:"Cada mañana nos reencarnamos. Lo que hagamos hoy es lo más importante.", a:"Miyamoto Musashi"},
+  {t:"El hombre que mueve una montaña empieza llevando pequeñas piedras.", a:"Confucio"},
+  {t:"Ocúpate de tus cosas, no de lo que otros hacen.", a:"Epicteto"},
+];
 
 // ── Estado ────────────────────────────────────────────────────────────────────
 var S = {};
-
-function guardar() {
-  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {}
-}
-
+function guardar() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} }
 function cargar() {
-  try {
-    var raw = localStorage.getItem(KEY);
-    if (raw) S = JSON.parse(raw);
-  } catch(e) { S = {}; }
+  try { var r = localStorage.getItem(KEY); if (r) S = JSON.parse(r); } catch(e) { S = {}; }
   if (!S.historial)   S.historial = [];
   if (!S.rm)          S.rm = {};
-  if (!S.sesCount)    S.sesCount = 0;
+  if (!S.posActual)   S.posActual = 0;   // posición en la secuencia
   if (!S.altSesion)   S.altSesion = 0;
   if (!S.altPressTex) S.altPressTex = 0;
   if (!S.pressCiclo)  S.pressCiclo = 0;
+  if (!S.completadas) S.completadas = {}; // posicion -> true
 }
 
 // ── 1RM ───────────────────────────────────────────────────────────────────────
 function calc1RM(kg, reps) {
   if (!kg || kg <= 0) return 0;
   if (reps <= 1) return kg;
-  var f1 = kg * reps * 0.0333 + kg;
-  var f2 = kg / (1.0278 - 0.0278 * reps);
-  return (f1 + f2) / 2;
+  return ((kg * reps * 0.0333 + kg) + (kg / (1.0278 - 0.0278 * reps))) / 2;
 }
 function rmParaReps(rm1, reps) {
   if (reps <= 1) return rm1;
@@ -325,26 +340,22 @@ function toast(msg) {
   toastTimer = setTimeout(function() { el.classList.remove('on'); }, 2500);
 }
 
-// ── Páginas ───────────────────────────────────────────────────────────────────
+// ── Páginas / tabs ────────────────────────────────────────────────────────────
 function pagina(id) {
-  var ids = ['p-ob', 'p-res', 'p-main'];
+  var ids = ['p-ob','p-res','p-main'];
   for (var i = 0; i < ids.length; i++) {
-    var el = document.getElementById(ids[i]);
-    if (el) el.className = 'page' + (ids[i] === id ? ' on' : '');
+    document.getElementById(ids[i]).className = 'page' + (ids[i] === id ? ' on' : '');
   }
 }
-
-// ── Tabs ──────────────────────────────────────────────────────────────────────
 var tabActual = 'hoy';
 function tab(id) {
   tabActual = id;
-  var tabs = ['hoy', 'semana', 'fuerza', 'perfil'];
+  var tabs = ['hoy','semana','fuerza','perfil'];
   for (var i = 0; i < tabs.length; i++) {
-    var t = tabs[i];
-    var el = document.getElementById('t-' + t);
-    var nav = document.getElementById('nav-' + t);
-    if (el)  el.style.display  = (t === id) ? 'block' : 'none';
-    if (nav) nav.className = 'tb' + (t === id ? ' on' : '');
+    var el = document.getElementById('t-' + tabs[i]);
+    var nav = document.getElementById('nav-' + tabs[i]);
+    if (el) el.style.display = (tabs[i] === id) ? 'block' : 'none';
+    if (nav) nav.className = 'tb' + (tabs[i] === id ? ' on' : '');
   }
   if (id === 'hoy')    renderHoy();
   if (id === 'semana') renderSemana();
@@ -352,18 +363,16 @@ function tab(id) {
   if (id === 'perfil') renderPerfil();
 }
 
-// ── ONBOARDING ────────────────────────────────────────────────────────────────
+// ── Onboarding ────────────────────────────────────────────────────────────────
 function calcularFase() {
   var nombre = document.getElementById('f-nombre').value.trim();
   var peso   = parseFloat(document.getElementById('f-peso').value);
   var altura = parseFloat(document.getElementById('f-altura').value);
   var sexo   = document.getElementById('f-sexo').value;
-
   if (!nombre) { toast('Introduce tu nombre'); return; }
   if (!peso)   { toast('Introduce tu peso'); return; }
   if (!altura) { toast('Introduce tu altura'); return; }
   if (!sexo)   { toast('Selecciona el sexo'); return; }
-
   var psq  = parseFloat(document.getElementById('p-sq').value)  || 0;
   var rsq  = parseFloat(document.getElementById('r-sq').value)  || 1;
   var pbp  = parseFloat(document.getElementById('p-bp').value)  || 0;
@@ -372,37 +381,30 @@ function calcularFase() {
   var rdl  = parseFloat(document.getElementById('r-dl').value)  || 1;
   var pohp = parseFloat(document.getElementById('p-ohp').value) || 0;
   var rohp = parseFloat(document.getElementById('r-ohp').value) || 1;
-
   if (!psq)  { toast('Introduce el peso de Sentadilla');    return; }
   if (!pbp)  { toast('Introduce el peso de Press banca');   return; }
   if (!pdl)  { toast('Introduce el peso de Peso muerto');   return; }
   if (!pohp) { toast('Introduce el peso de Press militar'); return; }
-
   var rm = {
     sq:  Math.round(calc1RM(psq,  rsq)  * 10) / 10,
     bp:  Math.round(calc1RM(pbp,  rbp)  * 10) / 10,
     dl:  Math.round(calc1RM(pdl,  rdl)  * 10) / 10,
     ohp: Math.round(calc1RM(pohp, rohp) * 10) / 10,
   };
-
   var obj = {
-    sq:  { actual: rm.sq,  target: peso * 1.5, ok: rm.sq  >= peso * 1.5 },
-    bp:  { actual: rm.bp,  target: peso * 1.2, ok: rm.bp  >= peso * 1.2 },
-    dl:  { actual: rm.dl,  target: peso * 2.0, ok: rm.dl  >= peso * 2.0 },
-    ohp: { actual: rm.ohp, target: peso * 1.0, ok: rm.ohp >= peso * 1.0 },
+    sq:  { actual:rm.sq,  target:peso*1.5, ok:rm.sq  >= peso*1.5 },
+    bp:  { actual:rm.bp,  target:peso*1.2, ok:rm.bp  >= peso*1.2 },
+    dl:  { actual:rm.dl,  target:peso*2.0, ok:rm.dl  >= peso*2.0 },
+    ohp: { actual:rm.ohp, target:peso*1.0, ok:rm.ohp >= peso*1.0 },
   };
-
-  var cumplidos = (obj.sq.ok?1:0) + (obj.bp.ok?1:0) + (obj.dl.ok?1:0) + (obj.ohp.ok?1:0);
+  var cumplidos = (obj.sq.ok?1:0)+(obj.bp.ok?1:0)+(obj.dl.ok?1:0)+(obj.ohp.ok?1:0);
   var fase = cumplidos === 0 ? '1' : cumplidos < 4 ? '1.2' : '2';
-
   S = {
-    nombre: nombre, peso: peso, altura: altura, sexo: sexo,
-    fase: fase, cumplidos: cumplidos,
-    rm: rm, rmIni: { sq:rm.sq, bp:rm.bp, dl:rm.dl, ohp:rm.ohp },
-    obj: obj,
+    nombre:nombre, peso:peso, altura:altura, sexo:sexo,
+    fase:fase, cumplidos:cumplidos, rm:rm, obj:obj,
     fechaInicio: new Date().toISOString(),
-    sesCount: 0, altSesion: 0, altPressTex: 0, pressCiclo: 0,
-    historial: [],
+    posActual:0, altSesion:0, altPressTex:0, pressCiclo:0,
+    historial:[], completadas:{},
   };
   guardar();
   renderResultado();
@@ -411,430 +413,567 @@ function calcularFase() {
 
 function renderResultado() {
   var F = {
-    '1':  { label:'Fase 1 — Fuerza base',    cls:'b-blue',  desc:'Programa de fuerza base. 3 sesiones/semana alternando A y B. Duración: 2 meses.' },
-    '1.2':{ label:'Fase 1.2 — Texas Method', cls:'b-amber', desc:'Texas Method: Volumen, Recuperación e Intensidad. Duración: 2 meses.' },
-    '2':  { label:'Fase 2 — Hipertrofia',    cls:'b-green', desc:'¡Todos los objetivos superados! 4 días/semana de hipertrofia. Duración: 4 meses.' },
+    '1':  {label:'Fase 1 — Fuerza base',    cls:'b-blue',  desc:'Programa de fuerza base. 3 sesiones/semana alternando A y B. Duración: 2 meses.'},
+    '1.2':{label:'Fase 1.2 — Texas Method', cls:'b-amber', desc:'Texas Method: Volumen, Recuperación e Intensidad. Duración: 2 meses.'},
+    '2':  {label:'Fase 2 — Hipertrofia',    cls:'b-green', desc:'¡Todos los objetivos superados! 4 días/semana de hipertrofia. Duración: 4 meses.'},
   };
   var f = F[S.fase];
   var DATOS = [
-    { lbl:'Sentadilla',    k:'sq',  mult:1.5 },
-    { lbl:'Press banca',   k:'bp',  mult:1.2 },
-    { lbl:'Peso muerto',   k:'dl',  mult:2.0 },
-    { lbl:'Press militar', k:'ohp', mult:1.0 },
+    {lbl:'Sentadilla',k:'sq',mult:1.5},{lbl:'Press banca',k:'bp',mult:1.2},
+    {lbl:'Peso muerto',k:'dl',mult:2.0},{lbl:'Press militar',k:'ohp',mult:1.0},
   ];
   var rows = DATOS.map(function(d) {
     var o = S.obj[d.k];
-    var pct = o.actual > 0 ? Math.min(100, Math.round(o.actual / o.target * 100)) : 0;
-    return '<div class="rmrow">' +
-      '<div class="rmrow-top"><span>' + d.lbl + '</span><span>' + Math.round(o.actual) + ' kg / ' + Math.round(o.target) + ' kg (×' + d.mult + ')</span></div>' +
-      '<div class="pbar"><div class="pfill ' + (o.ok?'g':'') + '" style="width:' + pct + '%"></div></div>' +
-      '</div>';
+    var pct = o.actual > 0 ? Math.min(100, Math.round(o.actual/o.target*100)) : 0;
+    return '<div class="rmrow"><div class="rmrow-top"><span>'+d.lbl+'</span><span>'+Math.round(o.actual)+' kg / '+Math.round(o.target)+' kg (×'+d.mult+')</span></div>' +
+      '<div class="pbar"><div class="pfill '+(o.ok?'g':'')+'" style="width:'+pct+'%"></div></div></div>';
   }).join('');
-
   document.getElementById('res-content').innerHTML =
-    '<div style="text-align:center;padding:24px 0 16px">' +
-      '<div style="font-size:48px;margin-bottom:10px">💪</div>' +
-      '<div style="font-size:22px;font-weight:700;margin-bottom:6px">Hola, ' + S.nombre + '</div>' +
-      '<p style="font-size:15px;color:var(--text2)">Aquí están tus resultados</p>' +
-    '</div>' +
-    '<div class="card">' + rows + '</div>' +
-    '<div class="card">' +
-      '<span class="badge ' + f.cls + '" style="margin-bottom:10px">' + f.label + '</span>' +
-      '<p style="font-size:14px;color:var(--text2);line-height:1.5;margin-top:8px">' + f.desc + '</p>' +
-      '<p style="font-size:12px;color:var(--text3);margin-top:8px">Objetivos cumplidos: ' + S.cumplidos + '/4</p>' +
-    '</div>';
+    '<div style="text-align:center;padding:24px 0 16px"><div style="font-size:48px;margin-bottom:10px">💪</div>' +
+    '<div style="font-size:22px;font-weight:700;margin-bottom:6px">Hola, '+S.nombre+'</div>' +
+    '<p style="font-size:15px;color:var(--text2)">Aquí están tus resultados</p></div>' +
+    '<div class="card">'+rows+'</div>' +
+    '<div class="card"><span class="badge '+f.cls+'" style="margin-bottom:10px">'+f.label+'</span>' +
+    '<p style="font-size:14px;color:var(--text2);line-height:1.5;margin-top:8px">'+f.desc+'</p>' +
+    '<p style="font-size:12px;color:var(--text3);margin-top:8px">Objetivos cumplidos: '+S.cumplidos+'/4</p></div>';
 }
 
-function empezar() {
-  pagina('p-main');
-  tab('hoy');
+function empezar() { pagina('p-main'); tab('hoy'); }
+
+// ── Lógica de secuencia ───────────────────────────────────────────────────────
+function getSecActual() {
+  return getSecuencia(S.fase || '1');
+}
+// Posición actual en la secuencia (primera no completada)
+function posActual() {
+  return S.posActual || 0;
+}
+// La sesión que toca ahora
+function sesionActual() {
+  var sec = getSecActual();
+  var pos = posActual();
+  if (pos >= sec.length) return sec[sec.length - 1];
+  return sec[pos];
+}
+// Marcar posición como completada y avanzar
+function avanzar() {
+  var sec = getSecActual();
+  var pos = posActual();
+  S.completadas[pos] = true;
+  // avanzar hasta la siguiente no completada
+  var next = pos + 1;
+  while (next < sec.length && S.completadas[next]) next++;
+  S.posActual = next < sec.length ? next : pos; // no pasarse del final
+  guardar();
+}
+// Obtener "semana actual" = semana de la sesión actual
+function semanaActual() {
+  var sec = getSecActual();
+  var pos = posActual();
+  return sec[pos] ? sec[pos].semana : 1;
+}
+// Sesiones de una semana concreta
+function sesionesDeSemanaN(n) {
+  var sec = getSecActual();
+  var out = [];
+  for (var i = 0; i < sec.length; i++) {
+    if (sec[i].semana === n) out.push({ item: sec[i], pos: i });
+  }
+  return out;
 }
 
 // ── HOY ───────────────────────────────────────────────────────────────────────
-function tipoHoy() {
-  var tipos = TIPOS[S.fase] || TIPOS['1'];
-  return tipos[new Date().getDay()];
-}
-
 function renderHoy() {
-  var tipo = tipoHoy();
+  var ses = sesionActual();
+  var pos = posActual();
+  var sec = getSecActual();
   var hoy = new Date();
-  var fecha = hoy.toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long' });
-  var FASE_LBL = { '1':'Fase 1', '1.2':'Fase 1.2 — Texas', '2':'Fase 2 — Hipertrofia', '3':'Fase 3' };
-  var maxS = S.fase === '2' ? 48 : 24;
-  var pct = Math.min(100, Math.round((S.sesCount || 0) / maxS * 100));
-
-  var contenido = getSesionHtml(tipo);
-
+  var fecha = hoy.toLocaleDateString('es-ES', {weekday:'long',day:'numeric',month:'long'});
+  var FASE_LBL = {'1':'Fase 1','1.2':'Fase 1.2 — Texas','2':'Fase 2 — Hipertrofia','3':'Fase 3'};
+  var maxPos = sec.length;
+  var pct = Math.min(100, Math.round(pos / maxPos * 100));
+  var contenido = getSesionHtml(ses.tipo, pos);
   document.getElementById('t-hoy').innerHTML =
-    '<div class="hdr">' +
-      '<div><div class="hdr-t" style="text-transform:capitalize">' + fecha + '</div>' +
-        '<div style="margin-top:5px"><span class="badge b-blue">' + (FASE_LBL[S.fase] || S.fase) + '</span></div></div>' +
-      '<div style="text-align:right;font-size:13px;color:var(--text2)">Sesión ' + ((S.sesCount||0)+1) + '</div>' +
+    '<div class="hdr"><div>' +
+      '<div class="hdr-t" style="text-transform:capitalize">'+fecha+'</div>' +
+      '<div style="margin-top:5px"><span class="badge b-blue">'+(FASE_LBL[S.fase]||S.fase)+'</span></div></div>' +
+      '<div style="text-align:right;font-size:13px;color:var(--text2)">Sem. '+ses.semana+'</div>' +
     '</div>' +
     '<div style="padding:12px 16px 0">' +
-      '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px"><span>Progreso en fase</span><span>' + pct + '%</span></div>' +
-      '<div class="pbar"><div class="pfill" style="width:' + pct + '%"></div></div>' +
+      '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px"><span>Progreso en fase</span><span>'+pct+'%</span></div>' +
+      '<div class="pbar"><div class="pfill" style="width:'+pct+'%"></div></div>' +
     '</div>' +
-    '<div style="padding:12px 16px 0">' + contenido + '</div>';
+    '<div style="padding:12px 16px 0">'+contenido+'</div>';
 }
 
-function getSesionHtml(tipo) {
-  if (tipo === 'Descanso')     return htmlDescanso();
-  if (tipo === 'Crossfit')     return htmlCrossfit();
-  if (tipo === 'Sesion')       return htmlSesionF1();
-  if (tipo === 'Volumen')      return htmlTexVol();
-  if (tipo === 'Recuperacion') return htmlTexRec();
-  if (tipo === 'Intensidad')   return htmlTexInt();
-  if (tipo === 'TorsoF')       return htmlTorsoF();
-  if (tipo === 'PiernaF')      return htmlPiernaF();
-  if (tipo === 'TorsoH')       return htmlTorsoH();
-  if (tipo === 'PiernaH')      return htmlPiernaH();
+// ── SEMANA (nueva: muestra 7 días con detalles y se puede marcar) ─────────────
+function renderSemana() {
+  var semN = semanaActual();
+  var posAct = posActual();
+  var sesiones = sesionesDeSemanaN(semN);
+  var DIAS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+  var html = '<div class="hdr">' +
+    '<div class="hdr-t">Semana '+semN+'</div>' +
+    '<div style="display:flex;gap:8px;margin-top:12px">' +
+      (semN > 1 ? '<button class="btn-outline" style="width:auto;padding:6px 14px;font-size:13px;margin:0" onclick="cambiarSemana(-1)">← Anterior</button>' : '') +
+      '<button class="btn-outline" style="width:auto;padding:6px 14px;font-size:13px;margin:0" onclick="cambiarSemana(1)">Siguiente →</button>' +
+    '</div></div>' +
+    '<div style="padding:12px 16px 0">';
+
+  for (var i = 0; i < sesiones.length; i++) {
+    var item = sesiones[i].item;
+    var pos  = sesiones[i].pos;
+    var esSig = (pos === posAct);
+    var esComp = S.completadas[pos];
+    var color = TIPO_COLOR[item.tipo] || 'var(--text)';
+    var label = TIPO_LABEL[item.tipo] || item.tipo;
+
+    var estadoBadge = esComp
+      ? '<span class="badge b-green">✓ Completado</span>'
+      : esSig
+        ? '<span class="badge b-blue">← Siguiente</span>'
+        : '<span class="badge b-gray">Pendiente</span>';
+
+    // Descripción corta
+    var desc = descCorta(item.tipo);
+
+    // Botón completar (solo si es la siguiente o una anterior no completada)
+    var btnCompletar = '';
+    if (!esComp && pos <= posAct) {
+      btnCompletar = '<button class="btn" style="margin-top:10px" onclick="completarDesde('+pos+')">Marcar como completado</button>';
+    }
+    if (!esComp && item.tipo !== 'Descanso' && item.tipo !== 'Crossfit') {
+      btnCompletar = '<button class="btn" style="margin-top:10px" onclick="irASesion('+pos+')">Hacer esta sesión</button>';
+    }
+    if (esComp && (item.tipo === 'Descanso' || item.tipo === 'Crossfit')) {
+      btnCompletar = '';
+    }
+
+    html +=
+      '<div class="scard'+(esSig?' siguiente':'')+(esComp?' completada':'')+'" onclick="toggleExpand(\'exp-'+pos+'\')">' +
+        '<div class="scard-top">' +
+          '<div><div class="scard-num">'+DIAS[item.dia]+'</div><div class="scard-tipo" style="color:'+color+'">'+label+'</div></div>' +
+          estadoBadge +
+        '</div>' +
+        '<div class="scard-desc">'+desc+'</div>' +
+        '<div class="scard-expand" id="exp-'+pos+'">'+
+          (item.tipo !== 'Descanso' && item.tipo !== 'Crossfit'
+            ? '<div style="font-size:13px;color:var(--text2);line-height:1.8">'+detalle(item.tipo)+'</div>'
+            : '') +
+          btnCompletar +
+        '</div>' +
+      '</div>';
+  }
+  html += '</div>';
+
+  // Guardar semana visible para navegación
+  S._semanaVista = semN;
+  document.getElementById('t-semana').innerHTML = html;
+}
+
+var _semanaVista = 0;
+function cambiarSemana(delta) {
+  var sec = getSecActual();
+  var maxSem = sec[sec.length-1].semana;
+  var nueva = (S._semanaVista || semanaActual()) + delta;
+  if (nueva < 1) nueva = 1;
+  if (nueva > maxSem) nueva = maxSem;
+  S._semanaVista = nueva;
+
+  var posAct = posActual();
+  var sesiones = sesionesDeSemanaN(nueva);
+  var DIAS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+  var html = '<div class="hdr">' +
+    '<div class="hdr-t">Semana '+nueva+'</div>' +
+    '<div style="display:flex;gap:8px;margin-top:12px">' +
+      (nueva > 1 ? '<button class="btn-outline" style="width:auto;padding:6px 14px;font-size:13px;margin:0" onclick="cambiarSemana(-1)">← Anterior</button>' : '') +
+      (nueva < maxSem ? '<button class="btn-outline" style="width:auto;padding:6px 14px;font-size:13px;margin:0" onclick="cambiarSemana(1)">Siguiente →</button>' : '') +
+    '</div></div>' +
+    '<div style="padding:12px 16px 0">';
+
+  for (var i = 0; i < sesiones.length; i++) {
+    var item = sesiones[i].item;
+    var pos  = sesiones[i].pos;
+    var esSig = (pos === posAct);
+    var esComp = S.completadas[pos];
+    var color = TIPO_COLOR[item.tipo] || 'var(--text)';
+    var label = TIPO_LABEL[item.tipo] || item.tipo;
+    var estadoBadge = esComp
+      ? '<span class="badge b-green">✓ Completado</span>'
+      : esSig ? '<span class="badge b-blue">← Siguiente</span>'
+      : '<span class="badge b-gray">Pendiente</span>';
+    var btnCompletar = '';
+    if (!esComp && (item.tipo === 'Descanso' || item.tipo === 'Crossfit') && pos <= posAct) {
+      btnCompletar = '<button class="btn" style="margin-top:10px" onclick="completarDesde('+pos+')">Marcar como completado</button>';
+    }
+    if (!esComp && item.tipo !== 'Descanso' && item.tipo !== 'Crossfit') {
+      btnCompletar = '<button class="btn" style="margin-top:10px" onclick="irASesion('+pos+')">Hacer esta sesión</button>';
+    }
+    html +=
+      '<div class="scard'+(esSig?' siguiente':'')+(esComp?' completada':'')+'" onclick="toggleExpand(\'exp2-'+pos+'\')">' +
+        '<div class="scard-top"><div><div class="scard-num">'+DIAS[item.dia]+'</div><div class="scard-tipo" style="color:'+color+'">'+label+'</div></div>'+estadoBadge+'</div>' +
+        '<div class="scard-desc">'+descCorta(item.tipo)+'</div>' +
+        '<div class="scard-expand" id="exp2-'+pos+'">' +
+          (item.tipo !== 'Descanso' && item.tipo !== 'Crossfit' ? '<div style="font-size:13px;color:var(--text2);line-height:1.8">'+detalle(item.tipo)+'</div>' : '') +
+          btnCompletar +
+        '</div></div>';
+  }
+  html += '</div>';
+  document.getElementById('t-semana').innerHTML = html;
+}
+
+function toggleExpand(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle('on');
+}
+
+function descCorta(tipo) {
+  var M = {
+    Descanso:'Descanso activo · 10.000 pasos',
+    Crossfit:'Clase crossfit o WOD en crossfit.com',
+    Sesion:'Sentadilla · Press · Peso muerto',
+    Volumen:'5×5 al 90% · Fuerza base',
+    Recuperacion:'Recuperación · 80% del lunes',
+    Intensidad:'Buscar marcas · 5RM / 1-2-3RM',
+    TorsoF:'Press banca · Militar · Remo · Jabalina',
+    PiernaF:'Sentadilla · Peso muerto · Core',
+    TorsoH:'Press 4×8-10 · Curl · Flexiones',
+    PiernaH:'Sentadilla frontal · RDL · Zancadas',
+  };
+  return M[tipo] || '';
+}
+
+function detalle(tipo) {
+  var M = {
+    Sesion:'Sentadilla 3×5<br>Press banca / Militar 3×5<br>Peso muerto 2×5<br>Dominadas / Muscle Up<br>Plancha',
+    Volumen:'Sentadilla 5×5 (90% 5RM)<br>Press banca / Militar 5×5<br>Peso muerto 1×5<br>Dominadas<br>Plancha 2×2min',
+    Recuperacion:'Sentadilla 2×5 (80%)<br>Press 3×5<br>Fondos 3×10-12<br>Levantamiento piernas 3×8-10',
+    Intensidad:'Sentadilla 1×5 (5RM)<br>Press 1×1/2/3RM (rotando)<br>Clean 5×3<br>Dominadas',
+    TorsoF:'Press banca 3×3-5<br>Press militar 3×3-5<br>Remo 3×3-5<br>Press Jabalina 3×3-5<br>Dominadas<br>Fondos 3×5-8<br>Encogimientos 2×8-10',
+    PiernaF:'Sentadilla 3×3-5<br>Peso muerto 3×3-5<br>Toes to bar 3×8-10<br>Sit-up con barra 3×3-5<br>Pistol 2×5',
+    TorsoH:'Press banca 4×8-10<br>Press militar 4×8-10<br>Dominadas<br>Flexiones con palmada 4×15<br>Curl 4×10-12<br>Curl invertido 2×10',
+    PiernaH:'Sentadilla frontal 4×8-10<br>Peso muerto rumano 4×8-10<br>Zancadas 4×8-10<br>Elevación talones 4×10<br>Roll-out 4×10<br>Peso muerto unilateral 2×6-8',
+  };
+  return M[tipo] || '';
+}
+
+// Marcar descanso/crossfit como completado desde la vista de semana
+function completarDesde(pos) {
+  S.completadas[pos] = true;
+  // avanzar posActual si hace falta
+  if (pos >= S.posActual) {
+    var sec = getSecActual();
+    var next = pos + 1;
+    while (next < sec.length && S.completadas[next]) next++;
+    S.posActual = next < sec.length ? next : pos + 1;
+  }
+  guardar();
+  toast('Marcado como completado ✓');
+  renderSemana();
+  renderHoy();
+}
+
+// Ir a hacer una sesión concreta (la pone como "actual" temporalmente)
+function irASesion(pos) {
+  S._sesionOverride = pos;
+  tab('hoy');
+}
+
+// ── Render sesión ─────────────────────────────────────────────────────────────
+function getSesionHtml(tipo, pos) {
+  if (tipo === 'Descanso')     return htmlDescanso(pos);
+  if (tipo === 'Crossfit')     return htmlCrossfit(pos);
+  if (tipo === 'Sesion')       return htmlSesionF1(pos);
+  if (tipo === 'Volumen')      return htmlTexVol(pos);
+  if (tipo === 'Recuperacion') return htmlTexRec(pos);
+  if (tipo === 'Intensidad')   return htmlTexInt(pos);
+  if (tipo === 'TorsoF')       return htmlTorsoF(pos);
+  if (tipo === 'PiernaF')      return htmlPiernaF(pos);
+  if (tipo === 'TorsoH')       return htmlTorsoH(pos);
+  if (tipo === 'PiernaH')      return htmlPiernaH(pos);
   return '<p style="color:var(--text2)">Descansa</p>';
 }
 
-function htmlDescanso() {
-  var q = QUOTES[new Date().getDay() % QUOTES.length];
-  return '<div class="quote"><div class="qt">"' + q.t + '"</div><div class="qa">— ' + q.a + '</div></div>' +
-    '<div class="card"><div style="display:flex;gap:12px;align-items:flex-start">' +
-    '<span style="font-size:24px">🚶</span><div>' +
+function htmlDescanso(pos) {
+  var q = QUOTES[Math.floor((pos||0) % QUOTES.length)];
+  return '<div class="quote"><div class="qt">"'+q.t+'"</div><div class="qa">— '+q.a+'</div></div>' +
+    '<div class="card"><div style="display:flex;gap:12px;align-items:flex-start"><span style="font-size:24px">🚶</span><div>' +
     '<p style="font-size:15px;font-weight:500;margin-bottom:4px">Descanso activo</p>' +
-    '<p style="font-size:14px;color:var(--text2);line-height:1.5">Hoy descansa el cuerpo pero mantente activo. Objetivo: <strong style="color:var(--text)">10.000 pasos</strong>.</p>' +
-    '</div></div></div>';
+    '<p style="font-size:14px;color:var(--text2);line-height:1.5">Descansa el cuerpo pero mantente activo. Objetivo: <strong style="color:var(--text)">10.000 pasos</strong>.</p>' +
+    '</div></div></div>' +
+    '<button class="btn-outline" onclick="completarDesde('+(pos||0)+')">Marcar día como completado</button>';
 }
 
-function htmlCrossfit() {
-  return '<div class="card">' +
-    '<p style="font-size:15px;font-weight:500;margin-bottom:12px">🔥 Crossfit</p>' +
+function htmlCrossfit(pos) {
+  return '<div class="card"><p style="font-size:15px;font-weight:500;margin-bottom:12px">🔥 Crossfit</p>' +
     '<div class="card-sm"><p style="font-size:14px;font-weight:500;margin-bottom:4px">Opción 1</p><p style="font-size:13px;color:var(--text2)">Acude a una clase crossfit en tu gimnasio.</p></div>' +
     '<div class="card-sm"><p style="font-size:14px;font-weight:500;margin-bottom:6px">Opción 2 — WOD oficial</p>' +
     '<a href="https://www.crossfit.com" style="display:inline-block;background:var(--blue-bg);color:var(--blue);padding:8px 14px;border-radius:8px;font-size:13px;font-weight:500;text-decoration:none">crossfit.com →</a>' +
-    '</div></div>';
-}
-
-// Clave para guardar datos de sesión
-var sesKey = '';
-function buildKey(prefix) {
-  sesKey = prefix + '_' + (S.sesCount || 0);
-  return sesKey;
+    '</div></div>' +
+    '<button class="btn-outline" onclick="completarDesde('+(pos||0)+')">Marcar día como completado</button>';
 }
 
 function exHtml(exs, key) {
   return exs.map(function(ex, i) {
-    var sw = S['w_' + key + '_' + i] || '';
-    var sr = S['r_' + key + '_' + i] || '';
-    var done = S['done_' + key + '_' + i] || false;
-    var tick = done
-      ? '<svg width="14" height="14" viewBox="0 0 24 24" stroke="var(--green)" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
-      : '';
-    return '<div class="ex" id="ex-' + key + '-' + i + '">' +
-      '<div class="ex-name">' + ex.n + '</div>' +
-      '<div class="ex-sets">' + ex.s + '</div>' +
+    var sw = S['w_'+key+'_'+i] || '';
+    var sr = S['r_'+key+'_'+i] || '';
+    var done = S['done_'+key+'_'+i] || false;
+    var tick = done ? '<svg width="14" height="14" viewBox="0 0 24 24" stroke="var(--green)" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '';
+    return '<div class="ex" id="ex-'+key+'-'+i+'">' +
+      '<div class="ex-name">'+ex.n+'</div><div class="ex-sets">'+ex.s+'</div>' +
       '<div class="ex-row">' +
-        '<div class="ex-col"><span class="lbl">kg</span><input type="number" inputmode="decimal" id="w-' + key + '-' + i + '" value="' + sw + '" placeholder="' + (ex.p||'') + '" onchange="si(\'' + key + '\',' + i + ')"></div>' +
-        '<div class="ex-col"><span class="lbl">reps</span><input type="number" inputmode="numeric" id="r-' + key + '-' + i + '" value="' + sr + '" placeholder="' + (ex.rp||'') + '" onchange="si(\'' + key + '\',' + i + ')"></div>' +
-        '<div class="chk"><div class="chk-box' + (done?' on':'') + '" id="cb-' + key + '-' + i + '" onclick="tc(\'' + key + '\',' + i + ')">' + tick + '</div></div>' +
+        '<div class="ex-col"><span class="lbl">kg</span><input type="number" inputmode="decimal" id="w-'+key+'-'+i+'" value="'+sw+'" placeholder="'+(ex.p||'')+'" onchange="si(\''+key+'\','+i+')"></div>' +
+        '<div class="ex-col"><span class="lbl">reps</span><input type="number" inputmode="numeric" id="r-'+key+'-'+i+'" value="'+sr+'" placeholder="'+(ex.rp||'')+'" onchange="si(\''+key+'\','+i+')"></div>' +
+        '<div class="chk"><div class="chk-box'+(done?' on':'')+'" id="cb-'+key+'-'+i+'" onclick="tc(\''+key+'\','+i+')">'+tick+'</div></div>' +
       '</div></div>';
   }).join('');
 }
 
-function si(key, i) { // saveInput
-  var w = document.getElementById('w-' + key + '-' + i);
-  var r = document.getElementById('r-' + key + '-' + i);
-  if (w && w.value) S['w_' + key + '_' + i] = w.value;
-  if (r && r.value) S['r_' + key + '_' + i] = r.value;
+function si(key, i) {
+  var w = document.getElementById('w-'+key+'-'+i);
+  var r = document.getElementById('r-'+key+'-'+i);
+  if (w && w.value) S['w_'+key+'_'+i] = w.value;
+  if (r && r.value) S['r_'+key+'_'+i] = r.value;
   guardar();
 }
-
-function tc(key, i) { // toggleCheck
-  S['done_' + key + '_' + i] = !S['done_' + key + '_' + i];
+function tc(key, i) {
+  S['done_'+key+'_'+i] = !S['done_'+key+'_'+i];
   si(key, i);
-  var cb = document.getElementById('cb-' + key + '-' + i);
-  var done = S['done_' + key + '_' + i];
-  cb.className = 'chk-box' + (done ? ' on' : '');
-  cb.innerHTML = done
-    ? '<svg width="14" height="14" viewBox="0 0 24 24" stroke="var(--green)" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
-    : '';
+  var cb = document.getElementById('cb-'+key+'-'+i);
+  var done = S['done_'+key+'_'+i];
+  cb.className = 'chk-box'+(done?' on':'');
+  cb.innerHTML = done ? '<svg width="14" height="14" viewBox="0 0 24 24" stroke="var(--green)" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '';
 }
 
-function gs(key, tipo) { // guardarSesion
+function gs(key, tipo, pos) {
   var ejercicios = [];
-  var MAP = { sq:'Sentadilla', bp:'Press banca', dl:'Peso muerto', ohp:'Press militar' };
-  for (var i = 0; ; i++) {
-    var el = document.getElementById('ex-' + key + '-' + i);
+  var MAP = {sq:'Sentadilla',bp:'Press banca',dl:'Peso muerto',ohp:'Press militar'};
+  for (var i = 0;;i++) {
+    var el = document.getElementById('ex-'+key+'-'+i);
     if (!el) break;
-    var w = parseFloat(document.getElementById('w-' + key + '-' + i).value) || 0;
-    var r = parseInt(document.getElementById('r-' + key + '-' + i).value) || 0;
+    var w = parseFloat(document.getElementById('w-'+key+'-'+i).value)||0;
+    var r = parseInt(document.getElementById('r-'+key+'-'+i).value)||0;
     var nm = el.querySelector('.ex-name').textContent;
     if (w && r) {
-      ejercicios.push({ nombre: nm, peso: w, reps: r, rm1: Math.round(calc1RM(w, r)) });
-      var rmKey = Object.keys(MAP).find(function(k) { return MAP[k] === nm; });
-      if (rmKey) S.rm[rmKey] = Math.round(calc1RM(w, r) * 10) / 10;
+      ejercicios.push({nombre:nm,peso:w,reps:r,rm1:Math.round(calc1RM(w,r))});
+      var rk = null;
+      for (var k in MAP) { if (MAP[k]===nm) { rk=k; break; } }
+      if (rk) S.rm[rk] = Math.round(calc1RM(w,r)*10)/10;
     }
   }
-  S.historial.push({ fecha: new Date().toISOString(), tipo: tipo, ejercicios: ejercicios });
-  S.sesCount = (S.sesCount || 0) + 1;
-  S.altSesion = (S.altSesion || 0) + 1;
-  if (tipo === 'Intensidad') {
-    S.pressCiclo = ((S.pressCiclo || 0) + 1) % 3;
-    S.altPressTex = (S.altPressTex || 0) + 1;
-  }
-  if (tipo === 'Volumen') {
-    S.altPressTex = (S.altPressTex || 0) + 1;
-  }
-  guardar();
+  S.historial.push({fecha:new Date().toISOString(),tipo:tipo,ejercicios:ejercicios});
+  S.altSesion = (S.altSesion||0)+1;
+  if (tipo==='Intensidad') { S.pressCiclo=((S.pressCiclo||0)+1)%3; S.altPressTex=(S.altPressTex||0)+1; }
+  if (tipo==='Volumen')    { S.altPressTex=(S.altPressTex||0)+1; }
+  // avanzar secuencia
+  completarDesde(pos);
   toast('Sesión guardada ✓');
 }
 
-function sesBtn(key, tipo) {
-  return '<button class="btn" style="margin-top:14px" onclick="gs(\'' + key + '\',\'' + tipo + '\')">Guardar sesión</button>';
+function sesBtn(key, tipo, pos) {
+  return '<button class="btn" style="margin-top:14px" onclick="gs(\''+key+'\',\''+tipo+'\','+pos+')">Guardar y completar sesión</button>';
 }
 
-function htmlSesionF1() {
-  var alt = (S.altSesion || 0) % 2;
+function htmlSesionF1(pos) {
+  var alt = (S.altSesion||0) % 2;
   var esA = alt === 0;
-  var rm = S.rm || {};
-  var p = function(k, reps) { var v = rm[k]; return v ? r25(rmParaReps(v, reps)) : ''; };
-  var key = buildKey(esA ? 'f1A' : 'f1B');
+  var rm = S.rm||{};
+  var p = function(k,r) { var v=rm[k]; return v?r25(rmParaReps(v,r)):''; };
+  var key = 'f1'+(esA?'A':'B')+'_'+pos;
   var exs = esA
-    ? [
-        { n:'Sentadilla',           s:'3×5', p:p('sq',5),  rp:5 },
-        { n:'Press banca',          s:'3×5', p:p('bp',5),  rp:5 },
-        { n:'Peso muerto',          s:'2×5', p:p('dl',5),  rp:5 },
-        { n:'Dominadas / Muscle Up',s:'Progresión', rp:'' },
-        { n:'Plancha abdominal',    s:'2×2 min', rp:'' },
-      ]
-    : [
-        { n:'Sentadilla',           s:'3×5', p:p('sq',5),  rp:5 },
-        { n:'Press militar',        s:'3×5', p:p('ohp',5), rp:5 },
-        { n:'Clean',                s:'5×3', rp:3 },
-        { n:'Dominadas / Muscle Up',s:'Progresión', rp:'' },
-        { n:'Plancha lateral',      s:'2×1 min por lado', rp:'' },
-      ];
+    ? [{n:'Sentadilla',s:'3×5',p:p('sq',5),rp:5},{n:'Press banca',s:'3×5',p:p('bp',5),rp:5},
+       {n:'Peso muerto',s:'2×5',p:p('dl',5),rp:5},{n:'Dominadas / Muscle Up',s:'Progresión',rp:''},
+       {n:'Plancha abdominal',s:'2×2 min',rp:''}]
+    : [{n:'Sentadilla',s:'3×5',p:p('sq',5),rp:5},{n:'Press militar',s:'3×5',p:p('ohp',5),rp:5},
+       {n:'Clean',s:'5×3',rp:3},{n:'Dominadas / Muscle Up',s:'Progresión',rp:''},
+       {n:'Plancha lateral',s:'2×1 min por lado',rp:''}];
   return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">' +
-    '<div class="card-title" style="margin:0">Sesión ' + (esA?'A':'B') + '</div>' +
-    '<span class="badge b-blue">Fase 1</span></div>' +
-    exHtml(exs, key) + sesBtn(key, 'Sesion') + '</div>';
+    '<div class="card-title" style="margin:0">Sesión '+(esA?'A':'B')+'</div><span class="badge b-blue">Fase 1</span></div>' +
+    exHtml(exs,key)+sesBtn(key,'Sesion',pos)+'</div>';
 }
 
-function htmlTexVol() {
-  var alt = (S.altPressTex || 0) % 2;
-  var pressEj = alt === 0 ? 'Press banca' : 'Press militar';
-  var pressK  = alt === 0 ? 'bp' : 'ohp';
-  var rm = S.rm || {};
-  var p5 = function(k) { var v = rm[k]; return v ? r25(rmParaReps(v, 5) * 0.9) : ''; };
-  var key = buildKey('texV');
+function htmlTexVol(pos) {
+  var alt = (S.altPressTex||0)%2;
+  var pressEj = alt===0?'Press banca':'Press militar';
+  var pressK  = alt===0?'bp':'ohp';
+  var rm = S.rm||{};
+  var p5 = function(k){ var v=rm[k]; return v?r25(rmParaReps(v,5)*0.9):''; };
+  var key = 'texV_'+pos;
   var exs = [
-    { n:'Sentadilla', s:'5×5 — 90% del 5RM', p:p5('sq'), rp:5 },
-    { n:pressEj,      s:'5×5 — 90% del 5RM', p:p5(pressK), rp:5 },
-    { n:'Peso muerto',s:'1×5 — 90% del 5RM', p:p5('dl'), rp:5 },
-    { n:'Dominadas / Muscle Up', s:'Progresión', rp:'' },
-    { n:'Plancha abdominal', s:'2×2 min', rp:'' },
+    {n:'Sentadilla',s:'5×5 — 90% del 5RM',p:p5('sq'),rp:5},
+    {n:pressEj,s:'5×5 — 90% del 5RM',p:p5(pressK),rp:5},
+    {n:'Peso muerto',s:'1×5 — 90% del 5RM',p:p5('dl'),rp:5},
+    {n:'Dominadas / Muscle Up',s:'Progresión',rp:''},
+    {n:'Plancha abdominal',s:'2×2 min',rp:''},
   ];
   return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
     '<div class="card-title" style="margin:0">Texas — Volumen</div><span class="badge b-blue">Lunes</span></div>' +
-    '<div class="alert a-blue">Descansa 3 min entre series. Press de hoy: <strong>' + pressEj + '</strong>.</div>' +
-    exHtml(exs, key) + sesBtn(key, 'Volumen') + '</div>';
+    '<div class="alert a-blue">Descansa 3 min entre series. Press de hoy: <strong>'+pressEj+'</strong>.</div>' +
+    exHtml(exs,key)+sesBtn(key,'Volumen',pos)+'</div>';
 }
 
-function htmlTexRec() {
-  var alt = (S.altPressTex || 0) % 2;
-  var pressEj = alt === 0 ? 'Press militar' : 'Press banca';
-  var key = buildKey('texR');
+function htmlTexRec(pos) {
+  var alt = (S.altPressTex||0)%2;
+  var pressEj = alt===0?'Press militar':'Press banca';
+  var key = 'texR_'+pos;
   var exs = [
-    { n:'Sentadilla',              s:'2×5 — 80% del peso del lunes', rp:5 },
-    { n:pressEj,                   s:'3×5 — 90% del peso sem. anterior', rp:5 },
-    { n:'Fondos en paralelas',     s:'3×10-12', rp:10 },
-    { n:'Levantamiento de piernas',s:'3×8-10', rp:9 },
-    { n:'Dominadas / Muscle Up',   s:'Progresión', rp:'' },
+    {n:'Sentadilla',s:'2×5 — 80% del peso del lunes',rp:5},
+    {n:pressEj,s:'3×5 — 90% del peso sem. anterior',rp:5},
+    {n:'Fondos en paralelas',s:'3×10-12',rp:10},
+    {n:'Levantamiento de piernas',s:'3×8-10',rp:9},
+    {n:'Dominadas / Muscle Up',s:'Progresión',rp:''},
   ];
   return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
     '<div class="card-title" style="margin:0">Texas — Recuperación</div><span class="badge b-amber">Miércoles</span></div>' +
-    '<div class="alert a-amber">Descansa 2 min entre series. Press de hoy: <strong>' + pressEj + '</strong>.</div>' +
-    exHtml(exs, key) + sesBtn(key, 'Recuperacion') + '</div>';
+    '<div class="alert a-amber">Descansa 2 min entre series. Press de hoy: <strong>'+pressEj+'</strong>.</div>' +
+    exHtml(exs,key)+sesBtn(key,'Recuperacion',pos)+'</div>';
 }
 
-function htmlTexInt() {
-  var ciclo = (S.pressCiclo || 0) % 3;
-  var cicloLbl = ciclo === 0 ? 'Busca tu 1RM' : ciclo === 1 ? 'Busca tu 2RM' : 'Busca tu 3RM';
-  var repsP = ciclo === 0 ? 1 : ciclo === 1 ? 2 : 3;
-  var alt = (S.altPressTex || 0) % 2;
-  var pressEj = alt === 0 ? 'Press banca' : 'Press militar';
-  var key = buildKey('texI');
+function htmlTexInt(pos) {
+  var ciclo = (S.pressCiclo||0)%3;
+  var cicloLbl = ciclo===0?'Busca tu 1RM':ciclo===1?'Busca tu 2RM':'Busca tu 3RM';
+  var repsP = ciclo===0?1:ciclo===1?2:3;
+  var pressEj = (S.altPressTex||0)%2===0?'Press banca':'Press militar';
+  var key = 'texI_'+pos;
   var exs = [
-    { n:'Sentadilla',           s:'1×5 — Busca tu 5RM real', rp:5 },
-    { n:pressEj,                s:'1×' + repsP + ' — ' + cicloLbl, rp:repsP },
-    { n:'Clean',                s:'5×3', rp:3 },
-    { n:'Dominadas / Muscle Up',s:'Progresión', rp:'' },
+    {n:'Sentadilla',s:'1×5 — Busca tu 5RM real',rp:5},
+    {n:pressEj,s:'1×'+repsP+' — '+cicloLbl,rp:repsP},
+    {n:'Clean',s:'5×3',rp:3},
+    {n:'Dominadas / Muscle Up',s:'Progresión',rp:''},
   ];
   return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
     '<div class="card-title" style="margin:0">Texas — Intensidad</div><span class="badge b-green">Viernes</span></div>' +
-    '<div class="alert a-green">Día de marcas. Press: <strong>' + cicloLbl + '</strong>.</div>' +
-    exHtml(exs, key) + sesBtn(key, 'Intensidad') + '</div>';
+    '<div class="alert a-green">Día de marcas. Press: <strong>'+cicloLbl+'</strong>.</div>' +
+    exHtml(exs,key)+sesBtn(key,'Intensidad',pos)+'</div>';
 }
 
-function htmlTorsoF() {
-  var key = buildKey('tF');
+function htmlTorsoF(pos) {
+  var key = 'tF_'+pos;
   var exs = [
-    { n:'Press banca',           s:'3×3-5', rp:4 },
-    { n:'Press militar',         s:'3×3-5', rp:4 },
-    { n:'Remo con barra',        s:'3×3-5', rp:4 },
-    { n:'Press Jabalina',        s:'3×3-5', rp:4 },
-    { n:'Dominadas / Muscle Up', s:'Progresión', rp:'' },
-    { n:'Fondos en paralelas',   s:'3×5-8', rp:6 },
-    { n:'Encogimientos',         s:'2×8-10', rp:9 },
+    {n:'Press banca',s:'3×3-5',rp:4},{n:'Press militar',s:'3×3-5',rp:4},
+    {n:'Remo con barra',s:'3×3-5',rp:4},{n:'Press Jabalina',s:'3×3-5',rp:4},
+    {n:'Dominadas / Muscle Up',s:'Progresión',rp:''},{n:'Fondos en paralelas',s:'3×5-8',rp:6},
+    {n:'Encogimientos',s:'2×8-10',rp:9},
   ];
   return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">' +
     '<div class="card-title" style="margin:0">Torso Fuerza</div><span class="badge b-blue">Lunes</span></div>' +
-    exHtml(exs, key) + sesBtn(key, 'TorsoF') + '</div>';
+    exHtml(exs,key)+sesBtn(key,'TorsoF',pos)+'</div>';
 }
 
-function htmlPiernaF() {
-  var key = buildKey('pF');
+function htmlPiernaF(pos) {
+  var key = 'pF_'+pos;
   var exs = [
-    { n:'Sentadilla',       s:'3×3-5', rp:4 },
-    { n:'Peso muerto',      s:'3×3-5', rp:4 },
-    { n:'Toes to bar',      s:'3×8-10', rp:9 },
-    { n:'Sit up con barra', s:'3×3-5', rp:4 },
-    { n:'Pistol squat',     s:'2×5 por pierna', rp:5 },
+    {n:'Sentadilla',s:'3×3-5',rp:4},{n:'Peso muerto',s:'3×3-5',rp:4},
+    {n:'Toes to bar',s:'3×8-10',rp:9},{n:'Sit up con barra',s:'3×3-5',rp:4},
+    {n:'Pistol squat',s:'2×5 por pierna',rp:5},
   ];
   return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">' +
     '<div class="card-title" style="margin:0">Pierna Fuerza</div><span class="badge b-blue">Martes</span></div>' +
-    exHtml(exs, key) + sesBtn(key, 'PiernaF') + '</div>';
+    exHtml(exs,key)+sesBtn(key,'PiernaF',pos)+'</div>';
 }
 
-function htmlTorsoH() {
-  var key = buildKey('tH');
+function htmlTorsoH(pos) {
+  var key = 'tH_'+pos;
   var exs = [
-    { n:'Press banca',           s:'4×8-10', rp:9 },
-    { n:'Press militar',         s:'4×8-10', rp:9 },
-    { n:'Dominadas / Muscle Up', s:'Progresión', rp:'' },
-    { n:'Flexiones con palmada', s:'4×15', rp:15 },
-    { n:'Curl con barra',        s:'4×10-12', rp:11 },
-    { n:'Curl invertido',        s:'2×10', rp:10 },
+    {n:'Press banca',s:'4×8-10',rp:9},{n:'Press militar',s:'4×8-10',rp:9},
+    {n:'Dominadas / Muscle Up',s:'Progresión',rp:''},{n:'Flexiones con palmada',s:'4×15',rp:15},
+    {n:'Curl con barra',s:'4×10-12',rp:11},{n:'Curl invertido',s:'2×10',rp:10},
   ];
   return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">' +
     '<div class="card-title" style="margin:0">Torso Hipertrofia</div><span class="badge b-amber">Jueves</span></div>' +
-    exHtml(exs, key) + sesBtn(key, 'TorsoH') + '</div>';
+    exHtml(exs,key)+sesBtn(key,'TorsoH',pos)+'</div>';
 }
 
-function htmlPiernaH() {
-  var key = buildKey('pH');
+function htmlPiernaH(pos) {
+  var key = 'pH_'+pos;
   var exs = [
-    { n:'Sentadilla frontal',     s:'4×8-10', rp:9 },
-    { n:'Peso muerto rumano',     s:'4×8-10', rp:9 },
-    { n:'Zancadas',               s:'4×8-10 por pierna', rp:9 },
-    { n:'Elevación de talones',   s:'4×10', rp:10 },
-    { n:'Roll-out con barra',     s:'4×10', rp:10 },
-    { n:'Peso muerto unilateral', s:'2×6-8 por pierna', rp:7 },
+    {n:'Sentadilla frontal',s:'4×8-10',rp:9},{n:'Peso muerto rumano',s:'4×8-10',rp:9},
+    {n:'Zancadas',s:'4×8-10 por pierna',rp:9},{n:'Elevación de talones',s:'4×10',rp:10},
+    {n:'Roll-out con barra',s:'4×10',rp:10},{n:'Peso muerto unilateral',s:'2×6-8 por pierna',rp:7},
   ];
   return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">' +
     '<div class="card-title" style="margin:0">Pierna Hipertrofia</div><span class="badge b-amber">Viernes</span></div>' +
-    exHtml(exs, key) + sesBtn(key, 'PiernaH') + '</div>';
-}
-
-// ── SEMANA ────────────────────────────────────────────────────────────────────
-function renderSemana() {
-  var tipos = TIPOS[S.fase] || TIPOS['1'];
-  var hoyDow = new Date().getDay();
-  var DIAS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-  var orden = [1,2,3,4,5,6,0];
-  var html = orden.map(function(d) {
-    var es = d === hoyDow;
-    var color = TIPO_COLOR[tipos[d]] || 'var(--text)';
-    return '<div class="wday' + (es?' hoy':'') + '">' +
-      '<div><div class="wday-n">' + DIAS[d] + '</div>' +
-      '<div class="wday-t" style="color:' + color + '">' + (TIPO_LABEL[tipos[d]] || tipos[d]) + '</div></div>' +
-      (es ? '<span class="badge b-blue">Hoy</span>' : '') +
-      '</div>';
-  }).join('');
-  document.getElementById('t-semana').innerHTML =
-    '<div class="hdr"><div class="hdr-t">Esta semana</div></div>' +
-    '<div style="padding:12px 16px">' + html + '</div>';
+    exHtml(exs,key)+sesBtn(key,'PiernaH',pos)+'</div>';
 }
 
 // ── FUERZA ────────────────────────────────────────────────────────────────────
 function renderFuerza() {
-  var rm = S.rm || {};
-  var peso = S.peso || 80;
+  var rm = S.rm||{};
+  var peso = S.peso||80;
   var DATOS = [
-    { lbl:'Sentadilla',    k:'sq',  mult:1.5 },
-    { lbl:'Press banca',   k:'bp',  mult:1.2 },
-    { lbl:'Peso muerto',   k:'dl',  mult:2.0 },
-    { lbl:'Press militar', k:'ohp', mult:1.0 },
+    {lbl:'Sentadilla',k:'sq',mult:1.5},{lbl:'Press banca',k:'bp',mult:1.2},
+    {lbl:'Peso muerto',k:'dl',mult:2.0},{lbl:'Press militar',k:'ohp',mult:1.0},
   ];
   var cards = DATOS.map(function(d) {
-    var actual = rm[d.k] || 0;
-    var target = peso * d.mult;
-    var pct = actual > 0 ? Math.min(100, Math.round(actual / target * 100)) : 0;
-    var ok = actual >= target;
+    var actual = rm[d.k]||0;
+    var target = peso*d.mult;
+    var pct = actual>0?Math.min(100,Math.round(actual/target*100)):0;
+    var ok = actual>=target;
     return '<div class="metric">' +
-      '<div class="mval">' + (actual ? Math.round(actual) : '—') + '<span style="font-size:14px;font-weight:400"> kg</span></div>' +
-      '<div class="mlbl">' + d.lbl + '</div>' +
-      '<div class="pbar" style="margin-top:8px"><div class="pfill ' + (ok?'g':'') + '" style="width:' + pct + '%"></div></div>' +
-      '<div style="font-size:11px;color:' + (ok?'var(--green)':'var(--text2)') + ';margin-top:4px">' + pct + '% · obj ' + Math.round(target) + ' kg</div>' +
-      '</div>';
+      '<div class="mval">'+(actual?Math.round(actual):'—')+'<span style="font-size:14px;font-weight:400"> kg</span></div>' +
+      '<div class="mlbl">'+d.lbl+'</div>' +
+      '<div class="pbar" style="margin-top:8px"><div class="pfill '+(ok?'g':'')+'" style="width:'+pct+'%"></div></div>' +
+      '<div style="font-size:11px;color:'+(ok?'var(--green)':'var(--text2)')+';margin-top:4px">'+pct+'% · obj '+Math.round(target)+' kg</div></div>';
   }).join('');
-
-  var hist = (S.historial || []).slice(-6).reverse();
+  var hist = (S.historial||[]).slice(-6).reverse();
   var histHtml = hist.length
     ? hist.map(function(h) {
-        var fecha = new Date(h.fecha).toLocaleDateString('es-ES', { day:'numeric', month:'short' });
-        var exs = (h.ejercicios || []).map(function(e) { return e.nombre + ': ' + e.peso + 'kg×' + e.reps; }).join(' · ');
-        return '<div class="hrow"><div class="hrow-d">' + fecha + '</div><div class="hrow-t">' + h.tipo + '</div>' + (exs ? '<div class="hrow-x">' + exs + '</div>' : '') + '</div>';
+        var fecha = new Date(h.fecha).toLocaleDateString('es-ES',{day:'numeric',month:'short'});
+        var exs = (h.ejercicios||[]).map(function(e){return e.nombre+': '+e.peso+'kg×'+e.reps;}).join(' · ');
+        return '<div class="hrow"><div class="hrow-d">'+fecha+'</div><div class="hrow-t">'+h.tipo+'</div>'+(exs?'<div class="hrow-x">'+exs+'</div>':'')+'</div>';
       }).join('')
     : '<p style="font-size:14px;color:var(--text2);padding:8px 0">Aún no hay sesiones guardadas.</p>';
-
   document.getElementById('t-fuerza').innerHTML =
     '<div class="hdr"><div class="hdr-t">Fuerza</div></div>' +
     '<div style="padding:12px 16px 0">' +
       '<div style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Marcas actuales (1RM)</div>' +
-      '<div class="g2" style="margin-bottom:16px">' + cards + '</div>' +
+      '<div class="g2" style="margin-bottom:16px">'+cards+'</div>' +
       '<div style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Historial reciente</div>' +
-      '<div class="card" style="padding:4px 14px">' + histHtml + '</div>' +
+      '<div class="card" style="padding:4px 14px">'+histHtml+'</div>' +
     '</div>';
 }
 
 // ── PERFIL ────────────────────────────────────────────────────────────────────
 function renderPerfil() {
-  var imc = S.peso && S.altura ? (S.peso / ((S.altura/100) * (S.altura/100))).toFixed(1) : '—';
-  var FASE_LBL = { '1':'Fase 1 — Fuerza', '1.2':'Fase 1.2 — Texas', '2':'Fase 2 — Hipertrofia', '3':'Fase 3 — Definición' };
-  var rm = S.rm || {};
-  var peso = S.peso || 0;
+  var imc = S.peso&&S.altura?(S.peso/((S.altura/100)*(S.altura/100))).toFixed(1):'—';
+  var FASE_LBL = {'1':'Fase 1 — Fuerza','1.2':'Fase 1.2 — Texas','2':'Fase 2 — Hipertrofia','3':'Fase 3'};
+  var rm = S.rm||{};
+  var peso = S.peso||0;
   var DATOS = [
-    { lbl:'Sentadilla',    k:'sq',  mult:1.5 },
-    { lbl:'Press banca',   k:'bp',  mult:1.2 },
-    { lbl:'Peso muerto',   k:'dl',  mult:2.0 },
-    { lbl:'Press militar', k:'ohp', mult:1.0 },
+    {lbl:'Sentadilla',k:'sq',mult:1.5},{lbl:'Press banca',k:'bp',mult:1.2},
+    {lbl:'Peso muerto',k:'dl',mult:2.0},{lbl:'Press militar',k:'ohp',mult:1.0},
   ];
   var objRows = DATOS.map(function(d) {
-    var actual = rm[d.k] || 0;
-    var target = peso * d.mult;
-    var ok = actual >= target;
+    var actual = rm[d.k]||0;
+    var target = peso*d.mult;
+    var ok = actual>=target;
     return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:0.5px solid var(--border)">' +
-      '<span style="font-size:14px">' + d.lbl + '</span>' +
-      '<span class="badge ' + (ok?'b-green':'b-amber') + '">' + (ok?'✓ Cumplido':'Pendiente') + '</span>' +
-      '</div>';
+      '<span style="font-size:14px">'+d.lbl+'</span>' +
+      '<span class="badge '+(ok?'b-green':'b-amber')+'">'+(ok?'✓ Cumplido':'Pendiente')+'</span></div>';
   }).join('');
-
+  var sec = getSecActual();
+  var posAct = posActual();
+  var totalComp = 0;
+  for (var k in S.completadas) { if (S.completadas[k]) totalComp++; }
   document.getElementById('t-perfil').innerHTML =
-    '<div class="hdr"><div class="hdr-t">Perfil</div><div class="hdr-s">' + (S.nombre||'') + '</div></div>' +
+    '<div class="hdr"><div class="hdr-t">Perfil</div><div class="hdr-s">'+(S.nombre||'')+'</div></div>' +
     '<div style="padding:12px 16px 0">' +
       '<div class="g3" style="margin-bottom:12px">' +
-        '<div class="metric"><div class="mval">' + (S.peso||'—') + '</div><div class="mlbl">kg</div></div>' +
-        '<div class="metric"><div class="mval">' + (S.altura||'—') + '</div><div class="mlbl">cm</div></div>' +
-        '<div class="metric"><div class="mval">' + imc + '</div><div class="mlbl">IMC</div></div>' +
+        '<div class="metric"><div class="mval">'+(S.peso||'—')+'</div><div class="mlbl">kg</div></div>' +
+        '<div class="metric"><div class="mval">'+(S.altura||'—')+'</div><div class="mlbl">cm</div></div>' +
+        '<div class="metric"><div class="mval">'+imc+'</div><div class="mlbl">IMC</div></div>' +
       '</div>' +
-      '<div class="card"><div class="card-title">Objetivos de fuerza</div>' + objRows +
-        '<div style="padding-top:10px;font-size:13px;color:var(--text2)">' + (S.cumplidos||0) + '/4 objetivos cumplidos al inicio</div>' +
+      '<div class="card"><div class="card-title">Objetivos de fuerza</div>'+objRows +
+        '<div style="padding-top:10px;font-size:13px;color:var(--text2)">'+(S.cumplidos||0)+'/4 cumplidos al inicio</div></div>' +
+      '<div class="card"><div class="card-title">Programa</div>' +
+        '<div style="font-size:14px;margin-bottom:6px">'+(FASE_LBL[S.fase]||S.fase||'—')+'</div>' +
+        '<div style="font-size:13px;color:var(--text2);margin-bottom:4px">'+totalComp+' días completados · Semana '+semanaActual()+'</div>' +
+        '<div style="font-size:13px;color:var(--text2)">Inicio: '+(S.fechaInicio?new Date(S.fechaInicio).toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'}):'—')+'</div>' +
       '</div>' +
-      '<div class="card">' +
-        '<div class="card-title">Programa</div>' +
-        '<div style="font-size:14px;margin-bottom:6px">' + (FASE_LBL[S.fase] || S.fase || '—') + '</div>' +
-        '<div style="font-size:13px;color:var(--text2);margin-bottom:4px">' + (S.sesCount||0) + ' sesiones completadas</div>' +
-        '<div style="font-size:13px;color:var(--text2)">Inicio: ' + (S.fechaInicio ? new Date(S.fechaInicio).toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'}) : '—') + '</div>' +
-      '</div>' +
-      '<button class="btn btn-red" onclick="resetear()">Reiniciar programa</button>' +
+      '<button class="btn-red" onclick="resetear()">Reiniciar programa</button>' +
     '</div>';
 }
 

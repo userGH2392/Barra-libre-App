@@ -91,6 +91,10 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .ex:last-of-type{border-bottom:none}
 .ex-name{font-size:15px;font-weight:500;margin-bottom:2px}
 .ex-sets{font-size:12px;color:var(--text2);margin-bottom:8px}
+.ex-nota{font-size:12px;color:var(--text2);line-height:1.45;margin-bottom:8px;padding:6px 9px;background:var(--bg3);border-radius:6px}
+.sup-hdr{font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin:10px 0 2px;padding-top:8px}
+.ex-sup{border-left:2px solid var(--blue);padding-left:10px;margin-left:-2px}
+.ex-fin{padding:12px 0}
 .ex-row{display:flex;gap:8px;align-items:flex-end}
 .ex-col{display:flex;flex-direction:column;align-items:center;flex:1}
 .ex-col .lbl{margin:0 0 4px;font-size:11px;text-align:center}
@@ -172,7 +176,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <div><span class="lbl">Altura (cm)</span><input type="number" id="f-altura" placeholder="178" inputmode="decimal"></div>
       </div>
       <span class="lbl">Sexo</span>
-      <select id="f-sexo">
+      <select id="f-sexo" onchange="onSexoChange()">
         <option value="">Selecciona...</option>
         <option value="H">Hombre</option>
         <option value="M">Mujer</option>
@@ -196,10 +200,19 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <div><span class="lbl">Peso (kg)</span><input type="number" id="p-dl" placeholder="120" inputmode="decimal"></div>
         <div><span class="lbl">Repeticiones</span><input type="number" id="r-dl" placeholder="5" inputmode="numeric"></div>
       </div>
-      <p class="ej-lbl">Press militar</p>
-      <div class="g2">
-        <div><span class="lbl">Peso (kg)</span><input type="number" id="p-ohp" placeholder="60" inputmode="decimal"></div>
-        <div><span class="lbl">Repeticiones</span><input type="number" id="r-ohp" placeholder="5" inputmode="numeric"></div>
+      <div id="ej-ohp">
+        <p class="ej-lbl">Press militar</p>
+        <div class="g2">
+          <div><span class="lbl">Peso (kg)</span><input type="number" id="p-ohp" placeholder="60" inputmode="decimal"></div>
+          <div><span class="lbl">Repeticiones</span><input type="number" id="r-ohp" placeholder="5" inputmode="numeric"></div>
+        </div>
+      </div>
+      <div id="ej-ht" style="display:none">
+        <p class="ej-lbl">Hip Thrust</p>
+        <div class="g2">
+          <div><span class="lbl">Peso (kg)</span><input type="number" id="p-ht" placeholder="80" inputmode="decimal"></div>
+          <div><span class="lbl">Repeticiones</span><input type="number" id="r-ht" placeholder="5" inputmode="numeric"></div>
+        </div>
       </div>
     </div>
     <button class="btn" id="btn-calcular" onclick="calcularFase()">Calcular mi fase →</button>
@@ -243,7 +256,303 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
 <script>
 'use strict';
-var KEY = 'entreno_v4';
+var KEY = 'entreno_v5';
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  MÓDULO PROGRAMA FEMENINO                                                  ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+// ════════════════════════════════════════════════════════════════════════════
+// PROGRAMA FEMENINO — "Guerrera Espartana"
+// ════════════════════════════════════════════════════════════════════════════
+// Standards de fuerza (multiplicador del peso corporal)
+var STD_MUJER = { sq:0.8, dl:1.1, bp:0.6, ht:0.9 };
+
+// Incrementos por sesión (Fase 1)
+var INC_MUJER = { sq:4, ht:4, dl:4, bp:2, clean:2 };
+
+// ── Secuencia de fases femenina ───────────────────────────────────────────────
+// Fase 1 (Fuerza): 8 semanas, A/B alternado, patrón L-X-V fuerza, S crossfit
+// Fase 2.1 (Fuerza-hipertrofia): 9 semanas
+// Fase 2.2 (Hipertrofia PRO): 4 bloques x 5 semanas (sem 0 descarga + 1-4)
+function getSecuenciaMujer(fase) {
+  var s = [];
+  if (fase === '1') {
+    var patron = ['FuerzaAB','Descanso','FuerzaAB','Descanso','FuerzaAB','Crossfit','Descanso'];
+    for (var w = 0; w < 8; w++)
+      for (var d = 0; d < 7; d++) s.push({ tipo: patron[d], semana: w+1, dia: d });
+  } else if (fase === '2.1') {
+    var patron21 = ['TorsoF21','PiernaF21','Descanso','TorsoH21','PiernaH21','Crossfit','Descanso'];
+    for (var w = 0; w < 9; w++)
+      for (var d = 0; d < 7; d++) s.push({ tipo: patron21[d], semana: w+1, dia: d });
+  } else { // 2.2
+    // 4 bloques, cada uno con semana 0 (descarga) + semanas 1-4 = 5 semanas/bloque = 20 semanas
+    var patron22 = ['Squat22','Upper122','Deadlift22','Descanso','Upper222','HipThrust22','Descanso'];
+    var bloques = ['B1','B2','B3','B4'];
+    var semGlobal = 0;
+    for (var b = 0; b < 4; b++) {
+      for (var sw = 0; sw <= 4; sw++) {  // semana 0..4
+        semGlobal++;
+        for (var d = 0; d < 7; d++) {
+          s.push({ tipo: patron22[d], semana: semGlobal, dia: d, bloque: bloques[b], semBloque: sw });
+        }
+      }
+    }
+  }
+  return s;
+}
+
+// ── Fase 1 femenina: sesiones A y B ───────────────────────────────────────────
+// progKey = clave para sugerencia de peso por incremento
+var F1M = {
+  A: { titulo:'Sesión A', ejercicios:[
+    {n:'Sentadilla',        s:'3×5',  rp:5, tempo:'2010', desc:120, prog:'sq'},
+    {n:'Press Banca',       s:'3×5',  rp:5, tempo:'2010', desc:120, prog:'bp'},
+    {n:'Peso Muerto',       s:'2×5',  rp:5, tempo:'2010', desc:120, prog:'dl'},
+    {n:'Dominada',          s:'3×máx',      tempo:'',     desc:120},
+    {n:'Plancha',           s:'2×2 min',    tempo:'',     desc:120},
+  ]},
+  B: { titulo:'Sesión B', ejercicios:[
+    {n:'Hip Thrust',                  s:'3×5',  rp:5, tempo:'2010', desc:120, prog:'ht'},
+    {n:'Flexión de pino',             s:'3×5',  rp:5, tempo:'2010', desc:120, nota:'Lo más vertical y profunda posible'},
+    {n:'Squat Clean',                 s:'5×3',  rp:3, tempo:'2010', desc:120, prog:'clean'},
+    {n:'Dominada',                    s:'3×máx',      tempo:'',     desc:120},
+    {n:'Elevación pierna cuadrúpeda', s:'4×15 (por lado)', rp:15, tempo:'2010', desc:120},
+    {n:'Plancha lateral',             s:'2×1 min',    tempo:'',     desc:60},
+  ]},
+};
+
+// ── Fase 2.1 femenina ──────────────────────────────────────────────────────────
+var F21M = {
+  TorsoF21: { titulo:'Torso Fuerza', badge:'Lunes', ejercicios:[
+    {n:'Press Banca',        s:'3×3-5', rp:5, tempo:'2010', desc:120},
+    {n:'Flexión de pino',    s:'3×3-5', rp:5, tempo:'2010', desc:120, nota:'Lo más vertical y profunda posible'},
+    {n:'Remo con Barra',     s:'3×3-5', rp:5, tempo:'2010', desc:120},
+    {n:'Dominada supino',    s:'3×4-6', rp:6, tempo:'',     desc:120},
+    {n:'Fondos en paralelas',s:'3×4-6', rp:6, tempo:'',     desc:120},
+  ]},
+  PiernaF21: { titulo:'Pierna Fuerza', badge:'Martes', ejercicios:[
+    {n:'Sentadilla',                s:'3×3-5', rp:5, tempo:'2010', desc:120},
+    {n:'Peso Muerto',               s:'3×3-5', rp:5, tempo:'2010', desc:120},
+    {n:'Toes To Bar estricto',      s:'3×8-10',rp:10,tempo:'1010', desc:120},
+    {n:'Puente de glúteos con barra',s:'3×3-5',rp:5, tempo:'2010', desc:120},
+    {n:'Sentadilla a una pierna',   s:'2×5 (por lado)', rp:5, tempo:'2010', desc:120},
+  ]},
+  TorsoH21: { titulo:'Torso Hipertrofia', badge:'Jueves', ejercicios:[
+    {n:'Flexión de pino', s:'4×8-10', rp:10, tempo:'2010', desc:120, nota:'Lo más vertical y profunda posible'},
+    {n:'Press Banca',     s:'3×8-10', rp:10, tempo:'2010', desc:120},
+    {n:'Dominada prono',  s:'3×máx',        tempo:'',      desc:120},
+    {n:'Flexiones',       s:'2×máx',        tempo:'',      desc:120},
+  ]},
+  PiernaH21: { titulo:'Pierna Hipertrofia', badge:'Viernes', ejercicios:[
+    {n:'Hip Thrust',           s:'4×8-10', rp:10, tempo:'2010', desc:120},
+    {n:'Sentadilla Frontal',   s:'4×8-10', rp:10, tempo:'2010', desc:120},
+    {n:'Peso Muerto Rumano',   s:'4×8-10', rp:10, tempo:'1010', desc:120},
+    {n:'Zancada trasera con barra', s:'4×8-10', rp:10, tempo:'2010', desc:120},
+    {n:'Sentadilla búlgara',   s:'4×8-10', rp:10, tempo:'2010', desc:120},
+  ]},
+};
+
+// ── Fase 2.2 femenina: Hipertrofia PRO ─────────────────────────────────────────
+// Estructura: F22M[bloque][dia] = { titulo, badge, ejercicios:[...] }
+// Cada ejercicio: { n, s(sets×reps), desc, tempo, nota, g(grupo superset), fin(finisher) }
+// Los finishers se modelan como { fin:true, n, nota, items:[...] }
+var F22M = {
+  // ════════ BLOQUE 1 — Accumulation 1 (4x10) ════════
+  B1: {
+    Squat22: { titulo:'Squat', badge:'Lunes', ejercicios:[
+      {n:'Low Bar Squat',          s:'4×10', desc:120, tempo:'2010', g:'A'},
+      {n:'BB Romanian Deadlift',   s:'4×10', desc:45,  tempo:'2110', g:'B', nota:'1 seg de pausa en estiramiento'},
+      {n:'DB Reverse Lunges',      s:'4×10 cada pierna', desc:45, tempo:'2010', g:'B'},
+      {n:'BB Hip Thrust - feet middle', s:'4×12-15', desc:90, tempo:'2010', g:'C', nota:'Mayor incidencia en glúteo. Rest-pause ×2 último set'},
+      {n:'BB Hip Thrust',          s:'4×12-15', desc:60, tempo:'2010', g:'D', nota:'Barra libre. Último set drop set ×2'},
+      {fin:true, n:'Booty Band Finisher 1', nota:'30 seg cada uno, sin descanso. 1 ronda completa y repetir.', items:['Frog pumps — 30 seg','Banded crab walk (torso adelante) — 30 seg']},
+    ]},
+    Upper122: { titulo:'Upper 1', badge:'Martes', ejercicios:[
+      {n:'Leaning One Arm DB Lateral Raises', s:'4×12 cada brazo', desc:60, tempo:'2010', g:'A', nota:'Deltoides sin extensión de codo cargada'},
+      {n:'Pull Up - Neutral',      s:'4×6',  desc:60, tempo:'2110', g:'A', nota:'Usa banda si la necesitas'},
+      {n:'DB Lateral Raises (seated)', s:'3×12 cada brazo', desc:10, tempo:'2010', g:'B', nota:'Último set drop set ×1'},
+      {n:'Bench Row (pecho apoyado)', s:'3×12', desc:90, tempo:'2011', g:'B', nota:'Rest-pause ×2 último set'},
+      {n:'30° Prone DB Lateral Raises', s:'3×15', desc:10, tempo:'2010', g:'C', nota:'Último set drop set ×2'},
+      {n:'Straight Arm DB Pullover', s:'3×15', desc:90, tempo:'2010', g:'C'},
+      {n:'45° Incline DB Curl - supinated', s:'3×10', desc:10, tempo:'3010', g:'D'},
+      {n:'DB Triceps Kickback (rango parcial)', s:'3×12', desc:60, tempo:'2010', g:'D', nota:'Sin estiramiento profundo bajo carga'},
+    ]},
+    Deadlift22: { titulo:'Deadlift', badge:'Miércoles', ejercicios:[
+      {n:'Deficit Deadlift',       s:'4×8',  desc:120, tempo:'3110', g:'A', nota:'Sobre disco de 20kg para más rango'},
+      {n:'DB Front Foot Elevated Split Squat', s:'4×10 cada pierna', desc:45, tempo:'2210', g:'B', nota:'2 seg pausa en estiramiento'},
+      {n:'B-Stance BB Hip Thrusts',s:'4×12 cada pierna', desc:45, tempo:'2010', g:'B'},
+      {n:'BB Front Squat - talones elevados', s:'4×12', desc:90, tempo:'2010', g:'C', nota:'Rest-pause ×2 último set'},
+      {n:'45° Back Extensions - DB on Chest', s:'4×20', desc:60, tempo:'2010', g:'D', nota:'Último set drop set ×1'},
+    ]},
+    Upper222: { titulo:'Upper 2', badge:'Viernes', ejercicios:[
+      {n:'DB Lateral Raises',      s:'4×12', desc:60, tempo:'2010', g:'A', nota:'Deltoides sin extensión de codo cargada'},
+      {n:'Pull Up - Supinated',    s:'4×6',  desc:60, tempo:'2010', g:'A', nota:'Usa banda si la necesitas'},
+      {n:'DB Floor Press - Neutral', s:'3×12', desc:10, tempo:'2010', g:'B', nota:'Menos estrés en codo. Último set drop set ×1'},
+      {n:'Bent Over Row - Pronated', s:'3×12', desc:90, tempo:'2011', g:'B', nota:'Rest-pause ×2 último set'},
+      {n:'Standing DB Lateral Raises', s:'3×12', desc:10, tempo:'2010', g:'C', nota:'Último set rest-pause ×1'},
+      {n:'DB Pullover',            s:'3×15', desc:90, tempo:'2010', g:'C', nota:'Dorsal'},
+      {n:'Standing EZ/DB Reverse Curl', s:'3×10', desc:10, tempo:'3010', g:'D'},
+      {n:'DB Triceps Kickback (rango parcial)', s:'3×12', desc:60, tempo:'2010', g:'D'},
+    ]},
+    HipThrust22: { titulo:'Hip Thrust', badge:'Sábado', ejercicios:[
+      {n:'BB Hip Thrust - constant tension (banda)', s:'4×10', desc:120, tempo:'2011', g:'A', nota:'No toques el suelo entre reps. Último set drop set'},
+      {n:'Heels Elevated High Bar Squat', s:'4×10', desc:45, tempo:'3010', g:'B', nota:'Talones bajo discos de 5kg, profunda'},
+      {n:'BB Romanian Deadlift - Single leg', s:'4×10', desc:45, tempo:'2010', g:'B', nota:'Rest-pause ×2'},
+      {n:'BB Romanian Deadlifts', s:'4×12', desc:90, tempo:'2010', g:'C'},
+      {n:'BB Reverse Lunges (talones elevados)', s:'4×15', desc:60, tempo:'2010', g:'D', nota:'Mayor incidencia glúteo. Último set drop set ×2'},
+      {fin:true, n:'Booty Band Finisher 2', nota:'30 seg cada uno, sin descanso. 1 ronda completa y repetir.', items:['Crab walk (torso adelante) — 30 seg','Lying single leg glute bridge (cada pierna) — 30 seg','Lying side clams (cada lado) — 30 seg','Banded frog pumps — 30 seg','Crab walks (torso recto) — 30 seg','Banded glute bridge — 30 seg']},
+    ]},
+  },
+  // ════════ BLOQUE 2 — Intensification 1 (4x6) ════════
+  B2: {
+    Squat22: { titulo:'Squat', badge:'Lunes', ejercicios:[
+      {n:'Low Bar Squat',          s:'4×6',  desc:90, tempo:'2310', g:'A', nota:'4 seg excéntrico. Rest-pause ×2 último set'},
+      {n:'BB Romanian Deadlift',   s:'4×6',  desc:90, tempo:'4010', g:'A', nota:'Una pierna a la vez'},
+      {n:'BB Deficit - Reverse Lunges', s:'4×8 cada pierna', desc:45, tempo:'2010', g:'B', nota:'Rest-pause ×2 último set'},
+      {n:'BB Glute Bridge (banda)',s:'4×10', desc:90, tempo:'2111', g:'B', nota:'Último set drop set ×1'},
+      {n:'BB Hip Thrust - feet wide', s:'4×20', desc:60, tempo:'2010', g:'C', nota:'Énfasis abducción, stance ancho'},
+      {fin:true, n:'Booty Band Finisher 3', nota:'30 seg cada uno, sin descanso. 1 ronda completa y repetir.', items:['Frog pumps — 30 seg','Bent over banded kickbacks (una pierna, luego cambia) — 30 seg']},
+    ]},
+    Upper122: { titulo:'Upper 1', badge:'Martes', ejercicios:[
+      {n:'DB Lateral Raises - Paused', s:'4×8', desc:90, tempo:'2210', g:'A', nota:'Deltoides sin extensión codo. Último set drop set ×2'},
+      {n:'Pull Up - Neutral - 2s Pause', s:'4×4', desc:90, tempo:'2012', g:'A', nota:'Usa banda si la necesitas'},
+      {n:'One Arm DB Lateral Raises', s:'3×10 cada brazo', desc:30, tempo:'2010', g:'B', nota:'Último set rest-pause ×1'},
+      {n:'One Arm DB Row',         s:'3×10', desc:90, tempo:'3010', g:'B', nota:'Rest-pause ×2 último set'},
+      {n:'45° Prone DB Y Raise',   s:'3×10', desc:90, tempo:'2012', g:'C', nota:'Último set drop set ×2'},
+      {n:'Bent Over DB Rear Delt Raise', s:'3×10', desc:90, tempo:'2012', g:'C', nota:'Codos atrás en 45°'},
+      {n:'45° Incline DB Zottman Curl', s:'3×7', desc:10, tempo:'4010', g:'D'},
+      {n:'DB Triceps Kickback 1&1/4', s:'3×7', desc:90, tempo:'2010', g:'D'},
+    ]},
+    Deadlift22: { titulo:'Deadlift', badge:'Miércoles', ejercicios:[
+      {n:'Deadlift',               s:'4×5',  desc:90, tempo:'2210', g:'A', nota:'Dead stop cada rep, resetea'},
+      {n:'DB Front Foot Elevated Split Squat 1&1/4', s:'4×6', desc:90, tempo:'3010', g:'A', nota:'1/4 rep abajo'},
+      {n:'BB Hip Thrust',          s:'4×12', desc:45, tempo:'2010', g:'B', nota:'Barra libre. Último set rest-pause ×2'},
+      {n:'Heels Elevated Goblet Squat', s:'4×12', desc:90, tempo:'2110', g:'B', nota:'Último set drop set ×1'},
+      {n:'45° Back Extensions - espalda redondeada', s:'3×20', desc:60, tempo:'2010', g:'C', nota:'Redondea espalda alta, énfasis glúteo'},
+    ]},
+    Upper222: { titulo:'Upper 2', badge:'Viernes', ejercicios:[
+      {n:'DB Lateral Raises - Paused', s:'4×8', desc:60, tempo:'2210', g:'A', nota:'2 seg pausa abajo del rango'},
+      {n:'Pull Up - Supinated - Paused', s:'4×6', desc:60, tempo:'2010', g:'A', nota:'Banda o añade peso'},
+      {n:'BB Floor Press - Close Grip', s:'3×10', desc:30, tempo:'2010', g:'B', nota:'Manos por dentro de hombros'},
+      {n:'Pendlay Row - Pronated', s:'3×8', desc:90, tempo:'2011', g:'B', nota:'Rest-pause ×2 último set'},
+      {n:'Bent Over DB Rear Delt Raise (al cuello)', s:'3×12', desc:60, tempo:'2011', g:'C', nota:'Último set rest-pause ×1'},
+      {n:'Bent Over DB Rear Delt Raise', s:'3×12', desc:60, tempo:'2011', g:'C', nota:'Último set drop set ×1'},
+      {n:'Standing DB Curl - Supinated', s:'3×12', desc:60, tempo:'2011', g:'D'},
+      {n:'DB Triceps Kickback', s:'3×8', desc:10, tempo:'3010', g:'D', nota:'Sin overhead'},
+    ]},
+    HipThrust22: { titulo:'Hip Thrust', badge:'Sábado', ejercicios:[
+      {n:'BB Hip Thrust Dead Stops', s:'4×6', desc:120, tempo:'2111', g:'A', nota:'Pausa en suelo cada rep. Último set rest-pause'},
+      {n:'Heels Elevated High Bar Squat - Paused', s:'4×6', desc:60, tempo:'2210', g:'B', nota:'Talones bajo discos de 5kg, profunda'},
+      {n:'BB Romanian Deadlift - Paused at stretch', s:'4×10', desc:90, tempo:'2012', g:'B', nota:'Rest-pause / drop set ×2'},
+      {n:'DB Romanian Deadlifts', s:'4×15', desc:45, tempo:'2010', g:'C'},
+      {n:'BB Hip Thrust - feet wide (duck stance)', s:'4×15', desc:45, tempo:'2110', g:'C', nota:'Mayor incidencia glúteo. Último set drop set ×2'},
+      {fin:true, n:'Booty Band Finisher 4', nota:'30 seg cada uno, sin descanso. 1 ronda completa y repetir.', items:['Crab walk (torso adelante) — 30 seg','Lying bridge hip abductions — 30 seg','Banded B-stance — 30 seg','Crab walks (torso recto) — 30 seg','Glute bridge ×30 — 30 seg','Crab walk (torso adelante) — 30 seg']},
+    ]},
+  },
+  // ════════ BLOQUE 3 — Accumulation 2 (Heavy Light) ════════
+  B3: {
+    Squat22: { titulo:'Squat', badge:'Lunes', ejercicios:[
+      {n:'Low Bar Squat',          s:'5×6',  desc:10, tempo:'3010', g:'A'},
+      {n:'Deficit Lunges - paso al frente', s:'5×10 cada pierna', desc:150, tempo:'2010', g:'A', nota:'Sobre disco de 20kg, alterna pierna'},
+      {n:'BB Hip Thrust - triple contraction', s:'5×6', desc:10, tempo:'2010', g:'B', nota:'3×1/4 reps arriba de cada rep'},
+      {n:'BB Romanian Deadlift - toes up', s:'5×12', desc:150, tempo:'2010', g:'B', nota:'Último set drop set ×1'},
+      {n:'BB Single Leg Hip Thrust / Frog Pump', s:'3×25 cada pierna', desc:30, tempo:'2010', g:'C', nota:'Mayor incidencia glúteo'},
+      {n:'BB Reverse Lunges 1&1/4 (talones elevados)', s:'6×8', desc:45, tempo:'2010', g:'D', nota:'Peso controlado, respeta descansos'},
+      {fin:true, n:'Booty Band Finisher 5', nota:'30 seg cada uno, sin descanso. 1 ronda completa y repetir.', items:['Banded B-stance glute bridges — 30 seg','Lying banded clams — 30 seg']},
+    ]},
+    Upper122: { titulo:'Upper 1', badge:'Martes', ejercicios:[
+      {n:'Standing DB Lateral Raises', s:'5×8', desc:10, tempo:'2210', g:'A', nota:'Deltoides sin extensión codo'},
+      {n:'Standing DB Lateral Raises 1&1/4', s:'5×12', desc:120, tempo:'2012', g:'A', nota:'1/4 rep arriba'},
+      {n:'Pull Ups Neutral', s:'5×6', desc:10, tempo:'2010', g:'B', nota:'Banda si la necesitas'},
+      {n:'Bench Row - pronated (pecho apoyado)', s:'5×12', desc:120, tempo:'3010', g:'B', nota:'Rest-pause ×2 último set'},
+      {n:'45° Prone DB Lateral Raises', s:'4×10', desc:45, tempo:'2010', g:'C', nota:'Último set drop set ×2'},
+      {n:'DB Bicep Curls',  s:'3×15', desc:10, tempo:'2010', g:'D'},
+      {n:'DB Triceps Kickback', s:'3×15', desc:60, tempo:'2010', g:'D'},
+    ]},
+    Deadlift22: { titulo:'Deadlift', badge:'Miércoles', ejercicios:[
+      {n:'Deadlift - Paused below knee', s:'4×6', desc:180, tempo:'2120', g:'A', nota:'2 seg pausa justo debajo de la rodilla'},
+      {n:'BB Back Foot Elevated Split Squats', s:'4×6', desc:10, tempo:'3010', g:'B'},
+      {n:'BB Hip Thrust - feet low and narrow', s:'4×12', desc:150, tempo:'2010', g:'B', nota:'Mayor incidencia glúteo. Último set drop set ×2'},
+      {n:'45° Back Extensions - BB on Back', s:'4×12', desc:10, tempo:'2012', g:'C'},
+      {n:'BB Hip Thrust - banded abduction', s:'4×10+10', desc:120, tempo:'2010', g:'C', nota:'Barra + banda, lean adelante y atrás'},
+      {n:'BB Romanian Deadlift', s:'6×8', desc:45, tempo:'3010', g:'D', nota:'Peso controlado, respeta descansos'},
+    ]},
+    Upper222: { titulo:'Upper 2', badge:'Viernes', ejercicios:[
+      {n:'Standing DB Lateral Raises', s:'5×8', desc:10, tempo:'2210', g:'A', nota:'Deltoides sin extensión codo'},
+      {n:'45° Prone Y Raises', s:'5×12', desc:120, tempo:'2012', g:'A', nota:'Último set rest-pause ×1'},
+      {n:'Bent Over BB Row - pronated', s:'5×6', desc:10, tempo:'2010', g:'B', nota:'Superset mismo músculo'},
+      {n:'DB Pullover', s:'5×12', desc:120, tempo:'3010', g:'B', nota:'Dorsal. Rest-pause ×2 último set'},
+      {n:'Bent Over DB Rear Delt Raise', s:'4×10', desc:45, tempo:'2012', g:'C', nota:'Rest-pause ×2 último set'},
+      {n:'DB Hammer Curls', s:'3×15', desc:10, tempo:'2010', g:'D'},
+      {n:'DB Triceps Kickback (codo fijo)', s:'3×15', desc:60, tempo:'2010', g:'D'},
+    ]},
+    HipThrust22: { titulo:'Hip Thrust', badge:'Sábado', ejercicios:[
+      {n:'BB Hip Thrust - 1&1/4 reps', s:'4×8', desc:10, tempo:'2210', g:'A', nota:'1/4 rep arriba. Superset con DB RDL'},
+      {n:'DB Romanian Deadlift', s:'4×12', desc:120, tempo:'2010', g:'A', nota:'Último set drop set ×1'},
+      {n:'Heels Elevated High Bar Squat - 1&1/4', s:'4×8', desc:10, tempo:'3010', g:'B', nota:'Talones sobre discos de 10kg. Superset con lunges'},
+      {n:'DB Deficit Reverse Lunges', s:'4×10 cada pierna', desc:120, tempo:'2010', g:'B', nota:'Alterna pierna cada rep'},
+      {n:'Sumo Feet Elevated KB Deficit Deadlift', s:'4×15', desc:60, tempo:'2110', g:'C', nota:'Último set: pies sobre elevación 6", stance sumo'},
+      {fin:true, n:'Booty Band Finisher 1', nota:'30 seg cada uno, sin descanso. 1 ronda completa y repetir.', items:['Frog pumps — 30 seg','Banded crab walk (torso adelante) — 30 seg']},
+    ]},
+  },
+  // ════════ BLOQUE 4 — Intensification 2 (5x5) ════════
+  B4: {
+    Squat22: { titulo:'Squat', badge:'Lunes', ejercicios:[
+      {n:'Low Bar Squat',          s:'5×5',  desc:120, tempo:'4010', g:'A', nota:'4 seg excéntrico. Último set rest-pause ×1'},
+      {n:'BB Romanian Deadlift - 1&1/4', s:'5×5', desc:120, tempo:'4010', g:'A', nota:'1/4 rep abajo'},
+      {n:'Back Foot Elevated DB Split Squat', s:'4×6', desc:60, tempo:'2210', g:'B', nota:'Drop set ×1'},
+      {n:'BB Good Morning', s:'4×8', desc:90, tempo:'3010', g:'B'},
+      {n:'BB Hip Thrust - drop sets', s:'3×12/10/8', desc:120, tempo:'2010', g:'C', nota:'Barra libre. Drop set: 12,10,8 reps = 1 set'},
+      {fin:true, n:'Booty Band Finisher 2', nota:'30 seg cada uno, sin descanso. 1 ronda completa y repetir.', items:['Crab walk (torso adelante) — 30 seg','Lying single leg glute bridge (cada pierna) — 30 seg','Lying side clams (cada lado) — 30 seg','Banded frog pumps — 30 seg','Crab walks (torso recto) — 30 seg','Banded glute bridge — 30 seg']},
+    ]},
+    Upper122: { titulo:'Upper 1', badge:'Martes', ejercicios:[
+      {n:'DB Lateral Raises 1&1/4', s:'5×5', desc:90, tempo:'3010', g:'A', nota:'Deltoides sin extensión codo. Último set drop set'},
+      {n:'Pull Up - Pronated', s:'5×5', desc:90, tempo:'2110', g:'A', nota:'Banda si la necesitas'},
+      {n:'BB Floor Press - Close Grip', s:'3×8', desc:30, tempo:'2010', g:'B', nota:'Manos por dentro de hombros'},
+      {n:'One Arm DB Row - Dead stops', s:'3×8', desc:90, tempo:'3010', g:'B', nota:'Descansa el peso en el suelo'},
+      {n:'30° Prone Rear Delt Lateral Raises', s:'3×10', desc:10, tempo:'2012', g:'C'},
+      {n:'Bench Row - Pronated mid grip', s:'3×10', desc:90, tempo:'2010', g:'C', nota:'Último set drop set ×2'},
+      {n:'65° DB Incline Hammer Curl', s:'3×6', desc:10, tempo:'5010', g:'D', nota:'Último set drop set ×1'},
+      {n:'DB Triceps Kickback (codo fijo)', s:'3×6', desc:90, tempo:'2010', g:'D', nota:'Último set drop set ×1'},
+    ]},
+    Deadlift22: { titulo:'Deadlift', badge:'Miércoles', ejercicios:[
+      {n:'Deadlift',               s:'5×5',  desc:180, tempo:'2210', g:'A'},
+      {n:'BB Front Foot Elevated Split Squat', s:'4×8', desc:60, tempo:'3010', g:'B'},
+      {n:'45° Back Extensions - DB on chest', s:'4×8', desc:60, tempo:'2012', g:'B', nota:'Último set drop set ×1, 2 seg pausa arriba'},
+      {n:'BB Hip Thrust 10-6-10 method', s:'4×10+6+10', desc:90, tempo:'2010', g:'C', nota:'10 seg hold + 6 reps completas + 10×1/4 arriba'},
+      {n:'BB Hip Thrust - banded triple drop', s:'3×10+10+10', desc:90, tempo:'2010', g:'D', nota:'Barra + banda, mayor incidencia glúteo'},
+    ]},
+    Upper222: { titulo:'Upper 2', badge:'Viernes', ejercicios:[
+      {n:'DB Lateral Raises', s:'5×5', desc:90, tempo:'3010', g:'A', nota:'Deltoides sin extensión codo'},
+      {n:'Pull Up - Neutral', s:'5×5', desc:90, tempo:'4010', g:'A', nota:'Banda o añade peso'},
+      {n:'65° Prone DB Lateral Raises', s:'3×8', desc:30, tempo:'2010', g:'B', nota:'Último set drop set ×2'},
+      {n:'Pendlay Row - Pronated', s:'3×8', desc:90, tempo:'2011', g:'B', nota:'Rest-pause ×2 último set'},
+      {n:'Bent Over DB Rear Delt Raise 1&1/4', s:'3×8', desc:30, tempo:'2011', g:'C', nota:'Último set rest-pause ×2, 1/4 rep'},
+      {n:'DB Pullover', s:'3×15', desc:90, tempo:'2011', g:'C'},
+      {n:'Standing DB Curl 1&1/4', s:'3×8', desc:10, tempo:'3010', g:'D', nota:'1/4 rep abajo'},
+      {n:'DB Triceps Kickback (codo fijo)', s:'3×8', desc:60, tempo:'2010', g:'D', nota:'Sin overhead'},
+    ]},
+    HipThrust22: { titulo:'Hip Thrust', badge:'Sábado', ejercicios:[
+      {n:'BB Hip Thrust - Dead Stops', s:'5×5', desc:120, tempo:'2111', g:'A', nota:'Dead stop en suelo cada set. Último set drop set ×2'},
+      {n:'High Bar Squats', s:'4×6', desc:90, tempo:'3010', g:'B', nota:'Talones bajo discos de 5kg, profunda'},
+      {n:'BB Romanian Deadlift 1&1/4', s:'4×10', desc:60, tempo:'2010', g:'B', nota:'1/4 rep arriba. Último set drop set ×1'},
+      {n:'DB Deficit Lunges - paso al frente', s:'4×12', desc:60, tempo:'2010', g:'C', nota:'Sobre disco de 20kg, alterna'},
+      {n:'B-Stance DB Romanian Deadlift', s:'4×12', desc:60, tempo:'2010', g:'C'},
+      {fin:true, n:'Booty Band Finisher 3', nota:'30 seg cada uno, sin descanso. 1 ronda completa y repetir.', items:['Frog pumps — 30 seg','Bent over banded kickbacks (una pierna, luego cambia) — 30 seg']},
+    ]},
+  },
+};
+
+// Mostrar/ocultar campo Hip Thrust vs Press militar según sexo
+function onSexoChange() {
+  var sexo = document.getElementById('f-sexo').value;
+  var esM = sexo === 'M';
+  var ohp = document.getElementById('ej-ohp');
+  var ht  = document.getElementById('ej-ht');
+  if (ohp) ohp.style.display = esM ? 'none' : 'block';
+  if (ht)  ht.style.display  = esM ? 'block' : 'none';
+}
+
 
 // ── Secuencia de sesiones por fase ────────────────────────────────────────────
 // Cada elemento: { tipo, label, desc }
@@ -287,11 +596,19 @@ var TIPO_LABEL = {
   Descanso:'Descanso', Sesion:'Sesión', Crossfit:'Crossfit',
   Volumen:'Volumen', Recuperacion:'Recuperación', Intensidad:'Intensidad',
   TorsoF:'Torso Fuerza', PiernaF:'Pierna Fuerza', TorsoH:'Torso Hiper.', PiernaH:'Pierna Hiper.',
+  // femeninos
+  FuerzaAB:'Fuerza',
+  TorsoF21:'Torso Fuerza', PiernaF21:'Pierna Fuerza', TorsoH21:'Torso Hiper.', PiernaH21:'Pierna Hiper.',
+  Squat22:'Squat', Upper122:'Upper 1', Deadlift22:'Deadlift', Upper222:'Upper 2', HipThrust22:'Hip Thrust',
 };
 var TIPO_COLOR = {
   Descanso:'var(--text3)', Sesion:'var(--text)', Crossfit:'var(--amber)',
   Volumen:'var(--text)', Recuperacion:'var(--blue)', Intensidad:'var(--green)',
   TorsoF:'var(--text)', PiernaF:'var(--text)', TorsoH:'var(--amber)', PiernaH:'var(--amber)',
+  // femeninos
+  FuerzaAB:'var(--text)',
+  TorsoF21:'var(--text)', PiernaF21:'var(--text)', TorsoH21:'var(--amber)', PiernaH21:'var(--amber)',
+  Squat22:'var(--text)', Upper122:'var(--blue)', Deadlift22:'var(--text)', Upper222:'var(--blue)', HipThrust22:'var(--green)',
 };
 var QUOTES = [
   {t:"El obstáculo es el camino.", a:"Marco Aurelio"},
@@ -379,6 +696,46 @@ function calcularFase() {
   var rbp  = parseFloat(document.getElementById('r-bp').value)  || 1;
   var pdl  = parseFloat(document.getElementById('p-dl').value)  || 0;
   var rdl  = parseFloat(document.getElementById('r-dl').value)  || 1;
+
+  if (sexo === 'M') {
+    // ── Rama femenina ──
+    var pht = parseFloat(document.getElementById('p-ht').value) || 0;
+    var rht = parseFloat(document.getElementById('r-ht').value) || 1;
+    if (!psq) { toast('Introduce el peso de Sentadilla');  return; }
+    if (!pbp) { toast('Introduce el peso de Press banca'); return; }
+    if (!pdl) { toast('Introduce el peso de Peso muerto'); return; }
+    if (!pht) { toast('Introduce el peso de Hip Thrust');  return; }
+    var rmM = {
+      sq: Math.round(calc1RM(psq, rsq) * 10) / 10,
+      bp: Math.round(calc1RM(pbp, rbp) * 10) / 10,
+      dl: Math.round(calc1RM(pdl, rdl) * 10) / 10,
+      ht: Math.round(calc1RM(pht, rht) * 10) / 10,
+    };
+    var objM = {
+      sq: { actual:rmM.sq, target:peso*STD_MUJER.sq, ok:rmM.sq >= peso*STD_MUJER.sq },
+      dl: { actual:rmM.dl, target:peso*STD_MUJER.dl, ok:rmM.dl >= peso*STD_MUJER.dl },
+      bp: { actual:rmM.bp, target:peso*STD_MUJER.bp, ok:rmM.bp >= peso*STD_MUJER.bp },
+      ht: { actual:rmM.ht, target:peso*STD_MUJER.ht, ok:rmM.ht >= peso*STD_MUJER.ht },
+    };
+    var cumpM = (objM.sq.ok?1:0)+(objM.dl.ok?1:0)+(objM.bp.ok?1:0)+(objM.ht.ok?1:0);
+    // Falla alguna → Fase 1; todas → Fase 2.1
+    var faseM = (cumpM < 4) ? '1' : '2.1';
+    S = {
+      nombre:nombre, peso:peso, altura:altura, sexo:sexo,
+      fase:faseM, cumplidos:cumpM, rm:rmM, obj:objM,
+      fechaInicio: new Date().toISOString(),
+      posActual:0, altSesion:0,
+      // pesos de partida para la sugerencia +kg de Fase 1 (1RM como referencia)
+      pesoInicio: { sq:rmM.sq, bp:rmM.bp, dl:rmM.dl, ht:rmM.ht, clean:0 },
+      historial:[], completadas:{},
+    };
+    guardar();
+    renderResultado();
+    pagina('p-res');
+    return;
+  }
+
+  // ── Rama masculina (original) ──
   var pohp = parseFloat(document.getElementById('p-ohp').value) || 0;
   var rohp = parseFloat(document.getElementById('r-ohp').value) || 1;
   if (!psq)  { toast('Introduce el peso de Sentadilla');    return; }
@@ -412,13 +769,21 @@ function calcularFase() {
 }
 
 function renderResultado() {
-  var F = {
+  var esM = S.sexo === 'M';
+  var F = esM ? {
+    '1':   {label:'Fase 1 — Fuerza',            cls:'b-blue',  desc:'Programa de fuerza. 3 sesiones/semana alternando A y B, +crossfit. Duración: 8 semanas. Luego pasarás a Fuerza-hipertrofia.'},
+    '2.1': {label:'Fase 2.1 — Fuerza-hiper.',   cls:'b-amber', desc:'¡Todos los standards superados! Fuerza e hipertrofia, 4 días/semana +crossfit. Duración: 9 semanas. Luego, Hipertrofia PRO.'},
+    '2.2': {label:'Fase 2.2 — Hipertrofia PRO', cls:'b-green', desc:'Programa avanzado de hipertrofia. 4 bloques con semana de descarga y trabajo a RIR 0.'},
+  } : {
     '1':  {label:'Fase 1 — Fuerza base',    cls:'b-blue',  desc:'Programa de fuerza base. 3 sesiones/semana alternando A y B. Duración: 2 meses.'},
     '1.2':{label:'Fase 1.2 — Texas Method', cls:'b-amber', desc:'Texas Method: Volumen, Recuperación e Intensidad. Duración: 2 meses.'},
     '2':  {label:'Fase 2 — Hipertrofia',    cls:'b-green', desc:'¡Todos los objetivos superados! 4 días/semana de hipertrofia. Duración: 4 meses.'},
   };
   var f = F[S.fase];
-  var DATOS = [
+  var DATOS = esM ? [
+    {lbl:'Sentadilla',k:'sq',mult:STD_MUJER.sq},{lbl:'Peso muerto',k:'dl',mult:STD_MUJER.dl},
+    {lbl:'Press banca',k:'bp',mult:STD_MUJER.bp},{lbl:'Hip Thrust',k:'ht',mult:STD_MUJER.ht},
+  ] : [
     {lbl:'Sentadilla',k:'sq',mult:1.5},{lbl:'Press banca',k:'bp',mult:1.2},
     {lbl:'Peso muerto',k:'dl',mult:2.0},{lbl:'Press militar',k:'ohp',mult:1.0},
   ];
@@ -442,7 +807,24 @@ function empezar() { pagina('p-main'); tab('hoy'); }
 
 // ── Lógica de secuencia ───────────────────────────────────────────────────────
 function getSecActual() {
+  if (S.sexo === 'M') return getSecuenciaMujer(S.fase || '1');
   return getSecuencia(S.fase || '1');
+}
+// Etiquetas de fase según sexo
+function faseLabel() {
+  if (S.sexo === 'M') return {'1':'Fase 1 — Fuerza','2.1':'Fase 2.1 — Fuerza-hiper.','2.2':'Fase 2.2 — Hipertrofia PRO'};
+  return {'1':'Fase 1 — Fuerza','1.2':'Fase 1.2 — Texas','2':'Fase 2 — Hipertrofia','3':'Fase 3'};
+}
+// Lifts y standards mostrados en Fuerza/Perfil según sexo
+function datosFuerza() {
+  if (S.sexo === 'M') return [
+    {lbl:'Sentadilla',k:'sq',mult:STD_MUJER.sq},{lbl:'Peso muerto',k:'dl',mult:STD_MUJER.dl},
+    {lbl:'Press banca',k:'bp',mult:STD_MUJER.bp},{lbl:'Hip Thrust',k:'ht',mult:STD_MUJER.ht},
+  ];
+  return [
+    {lbl:'Sentadilla',k:'sq',mult:1.5},{lbl:'Press banca',k:'bp',mult:1.2},
+    {lbl:'Peso muerto',k:'dl',mult:2.0},{lbl:'Press militar',k:'ohp',mult:1.0},
+  ];
 }
 // Posición actual en la secuencia (primera no completada)
 function posActual() {
@@ -489,7 +871,7 @@ function renderHoy() {
   var sec = getSecActual();
   var hoy = new Date();
   var fecha = hoy.toLocaleDateString('es-ES', {weekday:'long',day:'numeric',month:'long'});
-  var FASE_LBL = {'1':'Fase 1','1.2':'Fase 1.2 — Texas','2':'Fase 2 — Hipertrofia','3':'Fase 3'};
+  var FASE_LBL = faseLabel();
   var maxPos = sec.length;
   var pct = Math.min(100, Math.round(pos / maxPos * 100));
   var contenido = getSesionHtml(ses.tipo, pos);
@@ -642,6 +1024,17 @@ function descCorta(tipo) {
     PiernaF:'Sentadilla · Peso muerto · Core',
     TorsoH:'Press 4×8-10 · Curl · Flexiones',
     PiernaH:'Sentadilla frontal · RDL · Zancadas',
+    // femeninos
+    FuerzaAB:'Sesión de fuerza · alterna A/B',
+    TorsoF21:'Press · Pino · Remo · Dominadas',
+    PiernaF21:'Sentadilla · Peso muerto · Core',
+    TorsoH21:'Pino · Press · Dominadas · Flexiones',
+    PiernaH21:'Hip Thrust · Frontal · RDL · Búlgara',
+    Squat22:'Sentadilla + glúteo + finisher',
+    Upper122:'Hombro · espalda · brazo',
+    Deadlift22:'Peso muerto + glúteo + core',
+    Upper222:'Hombro · espalda · brazo',
+    HipThrust22:'Glúteo intensivo + finisher',
   };
   return M[tipo] || '';
 }
@@ -657,7 +1050,29 @@ function detalle(tipo) {
     TorsoH:'Press banca 4×8-10<br>Press militar 4×8-10<br>Dominadas<br>Flexiones con palmada 4×15<br>Curl 4×10-12<br>Curl invertido 2×10',
     PiernaH:'Sentadilla frontal 4×8-10<br>Peso muerto rumano 4×8-10<br>Zancadas 4×8-10<br>Elevación talones 4×10<br>Roll-out 4×10<br>Peso muerto unilateral 2×6-8',
   };
-  return M[tipo] || '';
+  if (M[tipo]) return M[tipo];
+  // Femeninos: generar desde los datos
+  return detalleMujer(tipo);
+}
+
+// Detalle resumido para los tipos femeninos (vista Semana, expandible)
+function detalleMujer(tipo) {
+  var ejs = null;
+  if (tipo === 'FuerzaAB') {
+    // mostrar ambas sesiones de forma compacta
+    return '<strong>Sesión A:</strong> ' + F1M.A.ejercicios.map(function(e){return e.n+' '+e.s;}).join(' · ') +
+      '<br><br><strong>Sesión B:</strong> ' + F1M.B.ejercicios.map(function(e){return e.n+' '+e.s;}).join(' · ');
+  }
+  if (tipo.slice(-2) === '21' && F21M[tipo]) ejs = F21M[tipo].ejercicios;
+  if (tipo.slice(-2) === '22') {
+    var bloque = bloqueActual();
+    if (F22M[bloque] && F22M[bloque][tipo]) ejs = F22M[bloque][tipo].ejercicios;
+  }
+  if (!ejs) return '';
+  return ejs.map(function(e){
+    if (e.fin) return '<em>'+e.n+'</em>';
+    return e.n + ' <span style="color:var(--text3)">' + e.s + '</span>';
+  }).join('<br>');
 }
 
 // Marcar descanso/crossfit como completado desde la vista de semana
@@ -668,12 +1083,40 @@ function completarDesde(pos) {
     var sec = getSecActual();
     var next = pos + 1;
     while (next < sec.length && S.completadas[next]) next++;
-    S.posActual = next < sec.length ? next : pos + 1;
+    if (next >= sec.length) {
+      // Fin de la fase: intentar pasar a la siguiente
+      if (avanzarFase()) { renderSemana(); renderHoy(); return; }
+      S.posActual = pos + 1; // sin fase siguiente: quedarse al final
+    } else {
+      S.posActual = next;
+    }
   }
   guardar();
   toast('Marcado como completado ✓');
   renderSemana();
   renderHoy();
+}
+
+// Pasa a la siguiente fase si corresponde. Devuelve true si hubo transición.
+function avanzarFase() {
+  var sig = null;
+  if (S.sexo === 'M') {
+    if (S.fase === '1')   sig = '2.1';
+    else if (S.fase === '2.1') sig = '2.2';
+  } else {
+    if (S.fase === '1')   sig = '1.2';
+    else if (S.fase === '1.2') sig = '2';
+  }
+  if (!sig) return false;
+  S.fase = sig;
+  S.posActual = 0;
+  S.completadas = {};
+  S.altSesion = 0;
+  S._semanaVista = 0;
+  if (S.sexo !== 'M') { S.altPressTex = 0; S.pressCiclo = 0; }
+  guardar();
+  toast('¡Nueva fase desbloqueada! → ' + sig);
+  return true;
 }
 
 // Ir a hacer una sesión concreta (la pone como "actual" temporalmente)
@@ -686,6 +1129,11 @@ function irASesion(pos) {
 function getSesionHtml(tipo, pos) {
   if (tipo === 'Descanso')     return htmlDescanso(pos);
   if (tipo === 'Crossfit')     return htmlCrossfit(pos);
+  // ── Femeninos ──
+  if (tipo === 'FuerzaAB')     return htmlFuerzaABMujer(pos);
+  if (tipo.slice(-2) === '21') return htmlSesion21Mujer(tipo, pos);
+  if (tipo.slice(-2) === '22') return htmlSesion22Mujer(tipo, pos);
+  // ── Masculinos ──
   if (tipo === 'Sesion')       return htmlSesionF1(pos);
   if (tipo === 'Volumen')      return htmlTexVol(pos);
   if (tipo === 'Recuperacion') return htmlTexRec(pos);
@@ -1278,13 +1726,45 @@ function htmlCrossfit(pos) {
 }
 
 function exHtml(exs, key) {
+  var prevG = null;
   return exs.map(function(ex, i) {
+    // ── Finisher (sin inputs de peso) ──
+    if (ex.fin) {
+      var doneF = S['done_'+key+'_'+i] || false;
+      var tickF = doneF ? '<svg width="14" height="14" viewBox="0 0 24 24" stroke="var(--green)" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '';
+      var items = (ex.items||[]).map(function(it){ return '<div style="font-size:13px;color:var(--text2);padding:2px 0">• '+it+'</div>'; }).join('');
+      return '<div class="ex ex-fin" id="ex-'+key+'-'+i+'">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start">' +
+          '<div style="flex:1"><div class="ex-name">🔥 '+ex.n+'</div>' +
+          (ex.nota?'<div class="ex-nota">'+ex.nota+'</div>':'') + items + '</div>' +
+          '<div class="chk"><div class="chk-box'+(doneF?' on':'')+'" id="cb-'+key+'-'+i+'" onclick="tc(\''+key+'\','+i+')">'+tickF+'</div></div>' +
+        '</div></div>';
+    }
     var sw = S['w_'+key+'_'+i] || '';
     var sr = S['r_'+key+'_'+i] || '';
     var done = S['done_'+key+'_'+i] || false;
     var tick = done ? '<svg width="14" height="14" viewBox="0 0 24 24" stroke="var(--green)" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '';
-    return '<div class="ex" id="ex-'+key+'-'+i+'">' +
-      '<div class="ex-name">'+ex.n+'</div><div class="ex-sets">'+ex.s+'</div>' +
+
+    // Encabezado de superset cuando cambia el grupo y comparte grupo con vecinos
+    var supHdr = '';
+    if (ex.g && ex.g !== prevG) {
+      // ¿hay más de uno en este grupo?
+      var count = 0;
+      for (var j = 0; j < exs.length; j++) if (exs[j].g === ex.g) count++;
+      if (count > 1) supHdr = '<div class="sup-hdr">Superset '+ex.g+'</div>';
+    }
+    prevG = ex.g;
+
+    // meta línea: sets×reps · tempo · descanso
+    var meta = ex.s || '';
+    if (ex.tempo) meta += ' · Tempo '+ex.tempo;
+    if (ex.desc)  meta += ' · '+ex.desc+'s desc.';
+
+    return supHdr +
+      '<div class="ex'+(ex.g?' ex-sup':'')+'" id="ex-'+key+'-'+i+'">' +
+      '<div class="ex-name">'+ex.n+'</div>' +
+      '<div class="ex-sets">'+meta+'</div>' +
+      (ex.nota?'<div class="ex-nota">'+ex.nota+'</div>':'') +
       '<div class="ex-row">' +
         '<div class="ex-col"><span class="lbl">kg</span><input type="number" inputmode="decimal" id="w-'+key+'-'+i+'" value="'+sw+'" placeholder="'+(ex.p||'')+'" onchange="si(\''+key+'\','+i+')"></div>' +
         '<div class="ex-col"><span class="lbl">reps</span><input type="number" inputmode="numeric" id="r-'+key+'-'+i+'" value="'+sr+'" placeholder="'+(ex.rp||'')+'" onchange="si(\''+key+'\','+i+')"></div>' +
@@ -1311,13 +1791,17 @@ function tc(key, i) {
 
 function gs(key, tipo, pos) {
   var ejercicios = [];
-  var MAP = {sq:'Sentadilla',bp:'Press banca',dl:'Peso muerto',ohp:'Press militar'};
+  var MAP = {sq:'Sentadilla',bp:'Press banca',dl:'Peso muerto',ohp:'Press militar',ht:'Hip Thrust'};
   for (var i = 0;;i++) {
     var el = document.getElementById('ex-'+key+'-'+i);
     if (!el) break;
-    var w = parseFloat(document.getElementById('w-'+key+'-'+i).value)||0;
-    var r = parseInt(document.getElementById('r-'+key+'-'+i).value)||0;
-    var nm = el.querySelector('.ex-name').textContent;
+    var wEl = document.getElementById('w-'+key+'-'+i);
+    var rEl = document.getElementById('r-'+key+'-'+i);
+    if (!wEl || !rEl) continue; // finisher u otro elemento sin inputs
+    var w = parseFloat(wEl.value)||0;
+    var r = parseInt(rEl.value)||0;
+    var nmEl = el.querySelector('.ex-name');
+    var nm = nmEl ? nmEl.textContent : '';
     if (w && r) {
       ejercicios.push({nombre:nm,peso:w,reps:r,rm1:Math.round(calc1RM(w,r))});
       var rk = null;
@@ -1336,6 +1820,88 @@ function gs(key, tipo, pos) {
 
 function sesBtn(key, tipo, pos) {
   return '<button class="btn" style="margin-top:14px" onclick="gs(\''+key+'\',\''+tipo+'\','+pos+')">Guardar y completar sesión</button>';
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// SESIONES FEMENINAS
+// ════════════════════════════════════════════════════════════════════════════
+// Bloque actual de Fase 2.2 (B1..B4) según la posición en la secuencia
+function bloqueActual() {
+  if (S.sexo !== 'M' || S.fase !== '2.2') return 'B1';
+  var sec = getSecActual();
+  var pos = posActual();
+  var it = sec[pos] || sec[0];
+  return (it && it.bloque) ? it.bloque : 'B1';
+}
+
+// ── Fase 1 femenina: alterna A/B (A B A / B A B …) ──
+function htmlFuerzaABMujer(pos) {
+  // Contamos cuántas sesiones de fuerza se han completado para alternar A/B
+  var alt = (S.altSesion||0) % 2;
+  var esA = alt === 0;
+  var def = esA ? F1M.A : F1M.B;
+  var key = 'fm'+(esA?'A':'B')+'_'+pos;
+  // Sugerencia de peso: pesoInicio + incremento*nº de sesiones de fuerza ya hechas
+  var nSes = S.altSesion || 0;
+  var pi = S.pesoInicio || {};
+  var sugerir = function(prog) {
+    if (!prog || pi[prog] == null) return '';
+    var base = pi[prog];
+    if (!base) return '';
+    var inc = INC_MUJER[prog] || 0;
+    return r25(base + inc * nSes);
+  };
+  var exs = def.ejercicios.map(function(e) {
+    var o = { n:e.n, s:e.s, rp:e.rp, tempo:e.tempo, desc:e.desc, nota:e.nota };
+    if (e.prog) o.p = sugerir(e.prog);   // peso sugerido como placeholder
+    return o;
+  });
+  return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
+    '<div class="card-title" style="margin:0">'+def.titulo+'</div><span class="badge b-blue">Fase 1</span></div>' +
+    '<div class="alert a-blue">Peso sugerido = inicial + incremento por sesión. Si completas las reps, mantén la progresión; si no, repite peso.</div>' +
+    exHtml(exs,key)+sesBtn(key,'FuerzaAB',pos)+'</div>';
+}
+
+// ── Fase 2.1 femenina ──
+function htmlSesion21Mujer(tipo, pos) {
+  var def = F21M[tipo];
+  if (!def) return '<p style="color:var(--text2)">—</p>';
+  var key = tipo+'_'+pos;
+  var badgeCls = (tipo==='TorsoH21'||tipo==='PiernaH21') ? 'b-amber' : 'b-blue';
+  var exs = def.ejercicios.map(function(e){
+    return { n:e.n, s:e.s, rp:e.rp, tempo:e.tempo, desc:e.desc, nota:e.nota };
+  });
+  return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
+    '<div class="card-title" style="margin:0">'+def.titulo+'</div><span class="badge '+badgeCls+'">'+def.badge+'</span></div>' +
+    '<div class="alert a-blue">Si no llegas al máximo del rango, repite peso. Si lo alcanzas, sube como en la fase de fuerza.</div>' +
+    exHtml(exs,key)+sesBtn(key,'TorsoF21',pos)+'</div>';
+}
+
+// ── Fase 2.2 femenina: Hipertrofia PRO ──
+function htmlSesion22Mujer(tipo, pos) {
+  var bloque = bloqueActual();
+  var def = (F22M[bloque] && F22M[bloque][tipo]) ? F22M[bloque][tipo] : null;
+  if (!def) return '<p style="color:var(--text2)">—</p>';
+  var sec = getSecActual();
+  var it = sec[pos] || {};
+  var semB = it.semBloque;  // 0 = descarga, 1-4 = trabajo
+  var key = bloque+'_'+tipo+'_'+pos;
+  var BLOQUE_NOMBRE = { B1:'Acumulación 1 · 4×10', B2:'Intensificación 1 · 4×6', B3:'Acumulación 2 · Heavy-Light', B4:'Intensificación 2 · 5×5' };
+
+  var avisoSemana = (semB === 0)
+    ? '<div class="alert a-amber"><strong>Semana 0 — Descarga.</strong> Usa pesos cómodos (RPE 7 ≈ 70% de lo habitual). Foco en la calidad del movimiento.</div>'
+    : '<div class="alert a-green"><strong>Semana '+semB+' de 4.</strong> El peso debe llevarte a RIR 0 al menos en la última serie de cada ejercicio.</div>';
+
+  var exs = def.ejercicios.map(function(e){
+    if (e.fin) return { fin:true, n:e.n, nota:e.nota, items:e.items };
+    return { n:e.n, s:e.s, tempo:e.tempo, desc:e.desc, nota:e.nota, g:e.g };
+  });
+
+  return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
+    '<div class="card-title" style="margin:0">'+def.titulo+'</div><span class="badge b-green">'+def.badge+'</span></div>' +
+    '<div style="font-size:12px;color:var(--text2);margin-bottom:10px">Bloque '+bloque.slice(1)+' — '+(BLOQUE_NOMBRE[bloque]||'')+'</div>' +
+    avisoSemana +
+    exHtml(exs,key)+sesBtn(key,'Sesion22',pos)+'</div>';
 }
 
 function htmlSesionF1(pos) {
@@ -1464,10 +2030,7 @@ function htmlPiernaH(pos) {
 function renderFuerza() {
   var rm = S.rm||{};
   var peso = S.peso||80;
-  var DATOS = [
-    {lbl:'Sentadilla',k:'sq',mult:1.5},{lbl:'Press banca',k:'bp',mult:1.2},
-    {lbl:'Peso muerto',k:'dl',mult:2.0},{lbl:'Press militar',k:'ohp',mult:1.0},
-  ];
+  var DATOS = datosFuerza();
   var cards = DATOS.map(function(d) {
     var actual = rm[d.k]||0;
     var target = peso*d.mult;
@@ -1500,13 +2063,10 @@ function renderFuerza() {
 // ── PERFIL ────────────────────────────────────────────────────────────────────
 function renderPerfil() {
   var imc = S.peso&&S.altura?(S.peso/((S.altura/100)*(S.altura/100))).toFixed(1):'—';
-  var FASE_LBL = {'1':'Fase 1 — Fuerza','1.2':'Fase 1.2 — Texas','2':'Fase 2 — Hipertrofia','3':'Fase 3'};
+  var FASE_LBL = faseLabel();
   var rm = S.rm||{};
   var peso = S.peso||0;
-  var DATOS = [
-    {lbl:'Sentadilla',k:'sq',mult:1.5},{lbl:'Press banca',k:'bp',mult:1.2},
-    {lbl:'Peso muerto',k:'dl',mult:2.0},{lbl:'Press militar',k:'ohp',mult:1.0},
-  ];
+  var DATOS = datosFuerza();
   var objRows = DATOS.map(function(d) {
     var actual = rm[d.k]||0;
     var target = peso*d.mult;

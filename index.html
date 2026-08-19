@@ -520,7 +520,9 @@ function buscarUltimo(slot) {
 //    objetivo de reps → último peso + incremento; si no → repites peso.
 // 2) Si no hay registro: estimación desde el 1RM con la curva del ejercicio,
 //    multiplicada por el factor de la sesión (p. ej. 0.9 en Texas Volumen).
-function pesoSugerido(slot, id, repsObjetivo, factor) {
+// 'libre' = no redondear al disco de barra (mancuernas: se respeta el peso
+// exacto que anotaste, porque los racks no siempre van de 2,5 en 2,5).
+function pesoSugerido(slot, id, repsObjetivo, factor, libre) {
   var ult = buscarUltimo(slot);
   if (ult) {
     var kg = 0, ok = true, i, s, conReps = 0;
@@ -534,8 +536,8 @@ function pesoSugerido(slot, id, repsObjetivo, factor) {
     }
     if (kg > 0) {
       var setsPrescritos = ult.setsObj || conReps;
-      if (ok && conReps >= setsPrescritos) return rDisco(kg + incremento(id));
-      return rDisco(kg);
+      var val = (ok && conReps >= setsPrescritos) ? kg + incremento(id) : kg;
+      return libre ? val : rDisco(val);
     }
   }
   if (id && S.rm && S.rm[id]) {
@@ -616,6 +618,12 @@ function defSesion(tipo, pos) {
 function exPeso(n, id, slot, sets, repsLbl, rt, factor) {
   return { n:n, t:'peso', id:id, slot:slot, sets:sets, repsLbl:repsLbl, rt:rt,
            sug: pesoSugerido(slot, id, rt, factor) };
+}
+// Mancuernas: sin id (no toca el 1RM de barra ni lo usa para estimar),
+// sin sugerencia la primera vez y sin redondeo al disco de 2,5.
+function exPesoMan(n, slot, sets, repsLbl, rt) {
+  return { n:n, t:'peso', id:null, slot:slot, sets:sets, repsLbl:repsLbl, rt:rt,
+           sug: pesoSugerido(slot, null, rt, 1, true) };
 }
 function exPesoFijo(n, id, slot, sets, repsLbl, rt, sug) {
   return { n:n, t:'peso', id:id, slot:slot, sets:sets, repsLbl:repsLbl, rt:rt, sug:sug };
@@ -721,14 +729,22 @@ function defPiernaF(pos) {
     exReps('Pistol squat', 'pF_pistol', 2, '5 por pierna', 5)
   ]};
 }
+// Torso Hipertrofia: trabajo unilateral con mancuernas.
+// Slots propios (terminados en 'm') para que la progresión NO herede los pesos
+// de barra registrados antes, e id nulo para que el peso no se estime desde el
+// 1RM de barra ni ese 1RM se actualice con cargas de mancuerna.
+// El peso se anota POR MANCUERNA. Sin registro previo no hay sugerencia; con
+// registro previo, +2,5 kg si se completaron todas las series.
 function defTorsoH(pos) {
-  return { titulo:'Torso Hipertrofia', badge:'Jueves', bcls:'b-pink', nota:'', exs:[
-    exPeso('Press banca',   'bp',  'tH_bp',  4, '8-10', 8),
-    exPeso('Press militar', 'ohp', 'tH_ohp', 4, '8-10', 8),
+  return { titulo:'Torso Hipertrofia', badge:'Jueves', bcls:'b-pink',
+    nota:'Trabajo unilateral: anota el peso de <strong>una sola mancuerna</strong>. La primera vez eliges tú la carga; después se propone +2,5 kg si completas todas las series.',
+    exs:[
+    exPesoMan('Press banca con mancuernas',    'tH_bpm',    4, '8-10', 8),
+    exPesoMan('Press militar con mancuernas',  'tH_ohpm',   4, '8-10', 8),
     exEscalera(),
     exReps('Flexiones con palmada', 'tH_flex', 4, '15', 15),
-    exPeso('Curl con barra',    null, 'tH_curl',  4, '10-12', 10),
-    exPeso('Curl invertido',    null, 'tH_curli', 2, '10', 10)
+    exPesoMan('Curl de bíceps con mancuernas', 'tH_curlm',  4, '10-12', 10),
+    exPesoMan('Curl invertido con mancuernas', 'tH_curlim', 2, '10', 10)
   ]};
 }
 function defPiernaH(pos) {
